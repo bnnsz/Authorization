@@ -26,6 +26,6 @@ RUN set -x \
 		openjdk8="$JAVA_ALPINE_VERSION" \
 	&& [ "$JAVA_HOME" = "$(docker-java-home)" ]
 # copy fat JAR
-COPY discovery-0.0.1-SNAPSHOT.jar /app.jar
+COPY authorization-0.0.1-SNAPSHOT.jar /app.jar
 # runs application
 CMD ["java", "-jar", "/app.jar"]
