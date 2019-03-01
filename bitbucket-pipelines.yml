@@ -1,0 +1,38 @@
+# This is a sample build configuration for Java (Maven).
+# Check our guides at https://confluence.atlassian.com/x/zd-5Mw for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: maven:3.3.9
+
+pipelines:
+  default:
+    - step:
+        name: Build and Test
+        caches:
+          - maven
+        script: # Modify the commands below to build your repository.
+          - mvn -B verify # -B batch mode makes Maven less verbose
+        artifacts: # defining the artifacts to be passed to each future step.
+          - build/*.jar
+    - step:
+        name: Deploy to test
+        deployment: test   # can be test, staging or production.
+        # trigger: manual  # Uncomment to make this a manual deployment.
+        script:
+          - echo "Deploying to test environment $SERVER_HOST"
+          - ls -R
+          - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST 'rm -f -r ~/docker/authorization; mkdir -p ~/docker/authorization'
+          - scp 'build/authorization-0.0.1-SNAPSHOT.jar' $SERVER_USER@$SERVER_HOST:'~/docker/authorization'
+          - scp 'Dockerfile' $SERVER_USER@$SERVER_HOST:'~/docker/authorization'
+          - ssh -tt -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << EOF 
+          - cd ~/docker/authorization
+          - docker build 
+          - send $USER_PASS
+          - docker build -t authorization .
+          - echo Delete old container...
+          - docker rm -f authorization
+          - echo "Run new container"
+          - docker run -d -p 8086:8086 --env DEPLOYMENT_ENV="test" --name authorization authorization 
+          - exit $? 
+          - EOF
