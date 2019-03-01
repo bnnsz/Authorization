@@ -14,7 +14,7 @@ pipelines:
         script: # Modify the commands below to build your repository.
           - mvn -B verify # -B batch mode makes Maven less verbose
         artifacts: # defining the artifacts to be passed to each future step.
-          - build/*.jar
+          - target/*.jar
     - step:
         name: Deploy to test
         deployment: test   # can be test, staging or production.
@@ -23,7 +23,7 @@ pipelines:
           - echo "Deploying to test environment $SERVER_HOST"
           - ls -R
           - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST 'rm -f -r ~/docker/authorization; mkdir -p ~/docker/authorization'
-          - scp 'build/authorization-0.0.1-SNAPSHOT.jar' $SERVER_USER@$SERVER_HOST:'~/docker/authorization'
+          - scp 'target/authorization-0.0.1-SNAPSHOT.jar' $SERVER_USER@$SERVER_HOST:'~/docker/authorization'
           - scp 'Dockerfile' $SERVER_USER@$SERVER_HOST:'~/docker/authorization'
           - ssh -tt -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << EOF 
           - cd ~/docker/authorization
