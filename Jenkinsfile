@@ -20,7 +20,7 @@ node {
           echo "Deploying to test environment $SERVER_HOST"
           ls -R
           ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST 'rm -f -r ~/docker/authorization; mkdir -p ~/docker/authorization'
-          scp 'target/gateway-0.0.1-SNAPSHOT.jar' $SERVER_USER@$SERVER_HOST:'~/docker/authorization'
+          scp 'target/authorization-0.0.1-SNAPSHOT.jar' $SERVER_USER@$SERVER_HOST:'~/docker/authorization'
           scp 'Dockerfile' $SERVER_USER@$SERVER_HOST:'~/docker/authorization'
           ssh -tt -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << EOF 
           cd ~/docker/authorization
