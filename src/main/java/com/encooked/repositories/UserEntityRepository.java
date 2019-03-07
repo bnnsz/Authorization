@@ -8,7 +8,6 @@ package com.encooked.repositories;
 import com.encooked.entities.UserEntity;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 /**
  *
@@ -16,7 +15,4 @@ import org.springframework.data.jpa.repository.Query;
  */
 public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
     public Optional<UserEntity> findByUsername(String username);
-    
-    @Query("SELECT u FROM User u WHERE u.status = 1")
-    public Optional<UserEntity> findByRole(String username);
 }

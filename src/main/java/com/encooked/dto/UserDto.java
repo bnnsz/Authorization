@@ -6,6 +6,8 @@
 package com.encooked.dto;
 
 import com.encooked.entities.UserEntity;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,26 +21,28 @@ import org.springframework.security.core.userdetails.UserDetails;
  *
  * @author obinna.asuzu
  */
+@ApiModel(value = "User", description = "User infomation, credentials and principles")
 public class UserDto implements UserDetails, Serializable {
 
+    @ApiModelProperty(value = "username of User")
     private String username;
-
+    @ApiModelProperty(value = "password of User")
     private String password;
-    
-    private Map<String,String> principles = new HashMap<>();
-
+    @ApiModelProperty(value = "User principles")
+    private Map<String, String> principles = new HashMap<>();
+    @ApiModelProperty(value = "user's granted authorities")
     private String grantedAuthorities;
-
+    @ApiModelProperty(value = "true if user account is enabled otherwise false")
     private boolean enabled;
-
+    @ApiModelProperty(value = "true if user account is not locked otherwise false")
     private boolean accountNonLocked;
-
+    @ApiModelProperty(value = "true if user's credential is not expired otherwise false")
     private boolean credentialsNonExpired;
-
+    @ApiModelProperty(value = "true if user account is not expired otherwise false")
     private boolean accountNonExpired;
 
     public UserDto(UserDetails other) {
-        this.username  = other.getUsername();
+        this.username = other.getUsername();
         this.password = other.getPassword();
         this.grantedAuthorities = other.getAuthorities().stream().map(g -> g.toString()).collect(Collectors.joining(","));
         this.accountNonExpired = other.isAccountNonExpired();
@@ -46,9 +50,9 @@ public class UserDto implements UserDetails, Serializable {
         this.credentialsNonExpired = other.isCredentialsNonExpired();
         this.enabled = other.isEnabled();
     }
-    
+
     public UserDto(UserEntity other) {
-        this.username  = other.getUsername();
+        this.username = other.getUsername();
         this.password = other.getPassword();
         this.grantedAuthorities = other.getAuthorities().stream().map(g -> g.toString()).collect(Collectors.joining(","));
         this.accountNonExpired = other.isAccountNonExpired();
@@ -57,8 +61,6 @@ public class UserDto implements UserDetails, Serializable {
         this.enabled = other.isEnabled();
         this.principles = other.getPrinciples();
     }
-    
-    
 
     /**
      * @return the username
@@ -115,14 +117,14 @@ public class UserDto implements UserDetails, Serializable {
     /**
      * @return the principles
      */
-    public Map<String,String> getPrinciples() {
+    public Map<String, String> getPrinciples() {
         return principles;
     }
 
     /**
      * @param principles the principles to set
      */
-    public void setPrinciples(Map<String,String> principles) {
+    public void setPrinciples(Map<String, String> principles) {
         this.principles = principles;
     }
 
@@ -168,17 +170,16 @@ public class UserDto implements UserDetails, Serializable {
         this.accountNonExpired = accountNonExpired;
     }
 
-    public boolean validate(UserDto userDetails){
-        String otherUser = username+":"+grantedAuthorities+":"
-                +accountNonExpired+":"+accountNonLocked+":"
-                +credentialsNonExpired+":"+enabled;
-        
-        String thisUser = userDetails.username+":"+userDetails.grantedAuthorities+":"
-                +userDetails.accountNonExpired+":"+userDetails.accountNonLocked+":"
-                +userDetails.credentialsNonExpired+":"+userDetails.enabled;
-        
+    public boolean validate(UserDto userDetails) {
+        String otherUser = username + ":" + grantedAuthorities + ":"
+                + accountNonExpired + ":" + accountNonLocked + ":"
+                + credentialsNonExpired + ":" + enabled;
+
+        String thisUser = userDetails.username + ":" + userDetails.grantedAuthorities + ":"
+                + userDetails.accountNonExpired + ":" + userDetails.accountNonLocked + ":"
+                + userDetails.credentialsNonExpired + ":" + userDetails.enabled;
+
         return thisUser.equals(otherUser);
     }
-    
-    
+
 }

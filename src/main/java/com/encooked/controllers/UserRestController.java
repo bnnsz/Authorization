@@ -9,6 +9,11 @@ import com.encooked.dto.UserDto;
 import com.encooked.entities.UserEntity;
 import com.encooked.dto.ErrorResponse;
 import com.encooked.services.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
@@ -34,11 +39,16 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @RestController
 @RequestMapping("/v1/users")
+@Api(value = "User API", authorizations = {@Authorization("USER_READ")})
 public class UserRestController {
 
     @Autowired
     UserService userService;
 
+    @ApiOperation(value = "Return list of users")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, response = UserDto.class, responseContainer = "List", message = "")
+    })
     @GetMapping()
     public ResponseEntity list() {
         List<UserDto> users = userService
@@ -48,12 +58,21 @@ public class UserRestController {
         return ResponseEntity.ok(users);
     }
 
+    @ApiOperation(value = "get user details by username or \"me\" as id for logged in user")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, response = UserDto.class, responseContainer = "List", message = "OK"),
+        @ApiResponse(code = 404, response = ErrorResponse.class, message = "User not found")
+    })
     @GetMapping("/{id}")
     public ResponseEntity get(@PathVariable String id) {
-        
         return ResponseEntity.ok(userService.getUser(resolve(id)));
     }
 
+    @ApiOperation(value = "get user profile infomations by username or \"me\" as id for logged in user")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, response = Object.class, responseContainer = "List", message = "OK"),
+        @ApiResponse(code = 404, response = ErrorResponse.class, message = "NOT FOUND")
+    })
     @GetMapping("/{id}/profile")
     public ResponseEntity getProfile(@PathVariable String id) {
         if (id.equalsIgnoreCase("me")) {
@@ -61,26 +80,43 @@ public class UserRestController {
         }
         return ResponseEntity.ok(userService.getUserProfile(resolve(id)));
     }
-
+    
+    @ApiOperation(value = "get user profile infomations by username or \"me\" as id for logged in user")
+    @ApiResponses(value = {
+        @ApiResponse(code = 202, response = Map.class, message = "ACCEPTED"),
+        @ApiResponse(code = 404, response = ErrorResponse.class, message = "NOT FOUND")
+    })
     @PutMapping("/{id}/update")
     public ResponseEntity put(@PathVariable String id, @RequestBody Map<String, String> principles) {
         UserEntity user = userService.updateUserProfile(resolve(id), principles);
         return ResponseEntity.accepted().body(new UserDto(user));
     }
 
+    @ApiOperation(value = "create new user")
+    @ApiResponses(value = {
+        @ApiResponse(code = 202, response = UserDto.class, message = "ACCEPTED"),
+        @ApiResponse(code = 400, response = ErrorResponse.class, message = "BAD REQUEST"),
+        @ApiResponse(code = 500, response = ErrorResponse.class, message = "INTERNAL SERVER ERROR")
+    })
     @PostMapping("/create")
     public ResponseEntity post(@RequestBody UserDto user) {
         String username = user.getUsername();
         String password = user.getPassword();
         String firstname = user.getPrinciples().get("firstname");
-        String lastname = user.getPrinciples().get("firstname");
-        String email = user.getPrinciples().get("firstname");
-        String phone = user.getPrinciples().get("firstname");
+        String lastname = user.getPrinciples().get("lastname");
+        String email = user.getPrinciples().get("email");
+        String phone = user.getPrinciples().get("phone");
 
         UserEntity createdUser = userService.createUser(username, password, firstname, lastname, email, phone);
-        return ResponseEntity.accepted().body(createdUser);
+        return ResponseEntity.accepted().body(new UserDto(createdUser));
     }
 
+    @ApiOperation(value = "delete user")
+    @ApiResponses(value = {
+        @ApiResponse(code = 202, response = Map.class, message = "ACCEPTED"),
+        @ApiResponse(code = 403, response = ErrorResponse.class, message = "FORBIDDEN"),
+        @ApiResponse(code = 500, response = Boolean.class, message = "INTERNAL SERVER ERROR")
+    })
     @DeleteMapping("/{id}/")
     public ResponseEntity delete(@PathVariable String id) {
         if (id.equalsIgnoreCase("me")) {
@@ -89,8 +125,8 @@ public class UserRestController {
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(userService.deactivateUser(resolve(id)));
         }
     }
-    
-    private String resolve(String id){
+
+    private String resolve(String id) {
         if (id.equalsIgnoreCase("me")) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             return authentication.getName();

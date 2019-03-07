@@ -36,7 +36,7 @@ public class UserEntity extends AbstractEntity implements Serializable, UserDeta
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column
+    @Column(unique = true)
     private String username;
 
     @Column

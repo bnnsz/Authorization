@@ -45,7 +45,4 @@ public class ExceptionController {
     public ResponseEntity<?> handleRecordExistException(Throwable ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(ex));
     }
-    
-    
-
 }

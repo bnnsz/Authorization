@@ -7,6 +7,18 @@ package com.encooked.controllers;
 
 import com.encooked.services.UserService;
 import com.encooked.components.JwtTokenUtil;
+import com.encooked.dto.ErrorResponse;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.Example;
+import io.swagger.annotations.ExampleProperty;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
@@ -24,6 +37,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @RestController
 @RequestMapping("/oauth/v1")
+@Api("Authentication Api")
 public class AuthenticationController {
     
     @Autowired
@@ -37,7 +51,16 @@ public class AuthenticationController {
     public void handleError() {
     }
     
-    @RequestMapping(name = "/request-token")
+    
+    @ApiOperation(value = "Returns users token on successful authentication")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, response = String.class, message = "OK"),
+        @ApiResponse(code = 404, response = ErrorResponse.class, message = "NOT FOUND")
+    })
+    @ApiParam(value = "", type = "header", required = true, name = "Authorization", examples = @Example(value = {
+        @ExampleProperty(value = "Basic dXNlcjpwYXNzd29yZA==")
+    }))
+    @RequestMapping(name = "/request-token", method = RequestMethod.GET)
     public ResponseEntity<String> login(){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetails user = (UserDetails) auth.getPrincipal();
