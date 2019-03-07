@@ -25,7 +25,9 @@ RUN set -x \
 	&& apk add --no-cache \
 		openjdk8="$JAVA_ALPINE_VERSION" \
 	&& [ "$JAVA_HOME" = "$(docker-java-home)" ]
+#make app home
+RUN make /app
 # copy fat JAR
-COPY authorization-0.0.1-SNAPSHOT.jar /app.jar
+COPY authorization-0.0.1-SNAPSHOT.jar /app/app.jar
 # runs application
-CMD ["java", "-jar", "/app.jar"]
+CMD ["java", "-jar", "/app/app.jar"]
