@@ -35,7 +35,7 @@ pipeline {
        docker rm -f authorization
        echo "Run new container"
        mkdir -p /var/authorization_home
-       docker run -v /var/authorization_home:/app -d --env DEPLOYMENT_ENV="test" --network="host" --name authorization authorization 
+       docker run -v /var/authorization_home:/app --env DEPLOYMENT_ENV="test" --network="host" --name authorization authorization 
        exit $? 
        EOF'''
    }
