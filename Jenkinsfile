@@ -30,9 +30,18 @@ pipeline {
        scp 'authorization.service' $SERVER_USER@$SERVER_HOST:'/etc/systemd/system/authorization.service'
        ssh -tt -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << EOF 
          systemctl daemon-reload
-         systemctl is-disabled --quiet authorization && systemctl enable authorization.service
-         systemctl is-active --quiet authorization && systemctl restart authoriation
-         systemctl is-inactive --quiet authorization && systemctl start authorization
+         if systemctl is-enabled --quiet authorization; 
+         then 
+           echo authorization service is already enbled
+         else
+           systemctl enable authorization.service
+         fi
+         if systemctl is-active --quiet authorization 
+         then
+           systemctl restart authorization  
+         else
+           systemctl start authorization
+         fi
          exit $? 
        EOF'''
    }
