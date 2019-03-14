@@ -27,7 +27,7 @@ pipeline {
        ls -R
        ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST 'mkdir -p ~/encooked/authorization'
        scp 'target/authorization-0.0.1-SNAPSHOT.jar' $SERVER_USER@$SERVER_HOST:'~/encooked/authorization/app.jar'
-       scp 'authoriation.service' $SERVER_USER@$SERVER_HOST:'/etc/systemd/system/authorization.service'
+       scp 'authorization.service' $SERVER_USER@$SERVER_HOST:'/etc/systemd/system/authorization.service'
        ssh -tt -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << EOF 
          systemctl deamon-reload
          systemctl is-disabled --quiet authorization && systemctl enable authorization.service
