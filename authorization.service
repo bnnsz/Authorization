@@ -2,8 +2,8 @@
 Description=Encooked authorization Java Spring cloud micro-service
 [Service]
 User=root
-WorkingDirectory=/home/root/encooked/authorization
-ExecStart=java -jar /home/root/encooked/authorization/app.jar
+WorkingDirectory=~/encooked/authorization
+ExecStart=java -jar ~/encooked/authorization/app.jar
 
 SuccessExiStatus=143
 TimeoutStopSec=10
