@@ -25,18 +25,15 @@ pipeline {
       sh'''
        echo "Deploying to test environment $SERVER_HOST"
        ls -R
-       ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST 'rm -f -r ~/docker/authorization; mkdir -p ~/docker/authorization'
-       scp 'target/authorization-0.0.1-SNAPSHOT.jar' $SERVER_USER@$SERVER_HOST:'~/docker/authorization'
-       scp 'Dockerfile' $SERVER_USER@$SERVER_HOST:'~/docker/authorization'
+       ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST 'mkdir -p ~/encooked/authorization'
+       scp 'target/authorization-0.0.1-SNAPSHOT.jar' $SERVER_USER@$SERVER_HOST:'~/encooked/authorization/app.jar'
+       scp 'authoriation.service' $SERVER_USER@$SERVER_HOST:'/etc/systemd/system/authorization.service'
        ssh -tt -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << EOF 
-       cd ~/docker/authorization
-       docker build .
-       echo Delete old container...
-       docker rm -f authorization
-       echo "Run new container"
-       mkdir -p /var/authorization_home
-       docker run -v /var/authorization_home:/app -d --env DEPLOYMENT_ENV="test" --network="host" --name authorization authorization 
-       exit $? 
+         systemctl deamon-reload
+         systemctl is-disabled --quiet authorization && systemctl enable authorization.service
+         systemctl is-active --quiet authorization && systemctl restart authoriation
+         systemctl is-inactive --quiet authorization && systemctl start authorization
+         exit $? 
        EOF'''
    }
   }
