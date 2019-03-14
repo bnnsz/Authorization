@@ -29,7 +29,7 @@ pipeline {
        scp 'target/authorization-0.0.1-SNAPSHOT.jar' $SERVER_USER@$SERVER_HOST:'~/encooked/authorization/app.jar'
        scp 'authorization.service' $SERVER_USER@$SERVER_HOST:'/etc/systemd/system/authorization.service'
        ssh -tt -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << EOF 
-         systemctl deamon-reload
+         systemctl daemon-reload
          systemctl is-disabled --quiet authorization && systemctl enable authorization.service
          systemctl is-active --quiet authorization && systemctl restart authoriation
          systemctl is-inactive --quiet authorization && systemctl start authorization
