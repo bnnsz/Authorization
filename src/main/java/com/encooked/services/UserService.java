@@ -190,5 +190,15 @@ public class UserService {
         
        return  userEntityRepository.save(user);
     }
+    
+    
+    public boolean changePassword(String username, String oldPassword, String newPassword) throws UsernameNotFoundException{
+        UserEntity user = userEntityRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        if(user.getPassword().equals(oldPassword)){
+            user.setPassword(newPassword);
+        }
+        return  userEntityRepository.save(user).getPassword().equals(newPassword);
+    }
 
 }
