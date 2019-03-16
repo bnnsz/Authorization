@@ -22,11 +22,6 @@ import javax.persistence.ManyToMany;
 @Entity
 public class GrantedPriviledgeEntity extends PriviledgeEntity implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
     @Column
     private boolean read;
     @Column
@@ -41,8 +36,6 @@ public class GrantedPriviledgeEntity extends PriviledgeEntity implements Seriali
     public GrantedPriviledgeEntity(String value) {
         setValue(value);
     }
-    
-    
 
     /**
      * @return the read
@@ -88,27 +81,36 @@ public class GrantedPriviledgeEntity extends PriviledgeEntity implements Seriali
 
     @Override
     public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
+        int hash = 7;
+        hash = 53 * hash + (super.hashCode());
+        hash = 53 * hash + (this.read ? 1 : 0);
+        hash = 53 * hash + (this.write ? 1 : 0);
         return hash;
     }
 
     @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof GrantedPriviledgeEntity)) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
             return false;
         }
-        GrantedPriviledgeEntity other = (GrantedPriviledgeEntity) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
-        return true;
+        final GrantedPriviledgeEntity other = (GrantedPriviledgeEntity) obj;
+        
+        
+        if ((this.getId() == null || other.getId() == null)) {
+            return (this.getValue().equals(other.getValue()) && this.read == other.read && this.write == other.write);
+        }
+        return (this.getId() != null && !this.getId().equals(other.getId()));
     }
 
     @Override
     public String toString() {
-        return "com.encooked.data.entities.PriviledgeEntity[ id=" + id + " ]";
+        return "com.encooked.data.entities.GrantedPriviledgeEntity[ id=" + getId() + " ]";
     }
 
 }
