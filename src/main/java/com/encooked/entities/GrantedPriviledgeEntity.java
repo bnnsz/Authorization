@@ -5,9 +5,11 @@
  */
 package com.encooked.entities;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,42 +19,72 @@ import javax.persistence.ManyToMany;
  *
  * @author obinna.asuzu
  */
-public class PriviledgeEntity {
+@Entity
+public class GrantedPriviledgeEntity extends PriviledgeEntity implements Serializable {
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column
-    private String value;
+    private boolean read;
+    @Column
+    private boolean write;
 
-    public Long getId() {
-        return id;
+    @ManyToMany(mappedBy = "priviledges")
+    private Set<RoleEntity> roles = new HashSet<>();
+
+    public GrantedPriviledgeEntity() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public GrantedPriviledgeEntity(String value) {
+        setValue(value);
+    }
+    
+    
+
+    /**
+     * @return the read
+     */
+    public boolean isRead() {
+        return read;
     }
 
     /**
-     * @return the value
+     * @param read the read to set
      */
-    public String getValue() {
-        return value;
+    public void setRead(boolean read) {
+        this.read = read;
     }
-    
-   
 
     /**
-     * @param value the value to set
+     * @return the write
      */
-    public void setValue(String value) {
-        this.value = value;
+    public boolean isWrite() {
+        return write;
     }
 
-    
+    /**
+     * @param write the write to set
+     */
+    public void setWrite(boolean write) {
+        this.write = write;
+    }
 
-    
+    /**
+     * @return the roles
+     */
+    public Set<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    /**
+     * @param roles the roles to set
+     */
+    public void setRoles(Set<RoleEntity> roles) {
+        this.roles = roles;
+    }
 
     @Override
     public int hashCode() {
@@ -67,7 +99,7 @@ public class PriviledgeEntity {
         if (!(object instanceof GrantedPriviledgeEntity)) {
             return false;
         }
-        PriviledgeEntity other = (PriviledgeEntity) object;
+        GrantedPriviledgeEntity other = (GrantedPriviledgeEntity) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -78,4 +110,5 @@ public class PriviledgeEntity {
     public String toString() {
         return "com.encooked.data.entities.PriviledgeEntity[ id=" + id + " ]";
     }
+
 }

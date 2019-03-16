@@ -38,8 +38,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author obinna.asuzu
  */
 @RestController
-@RequestMapping("/v1/users")
-@Api(value = "User API", authorizations = {@Authorization("USER_READ")})
+@RequestMapping("/api/v1/users")
+@Api(value = "User API",description = "User Rest API", authorizations = {@Authorization("USER_READ")})
 public class UserRestController {
 
     @Autowired

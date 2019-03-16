@@ -141,11 +141,21 @@ public class UserEntity extends AbstractEntity implements Serializable, UserDeta
     }
 
     private void addToAuthority(RoleEntity role) {
-        authorities.addAll(role.getPriviledges()
-                .stream()
-                .map(p -> p.of(role))
-                .collect(Collectors.toList()));
+        authorities.add(() -> "ROLE_"+role.getName());
+        role.getPriviledges().forEach(priv ->{
+            if(priv.isWrite()){
+                authorities.add(() -> role.getName()+"."+priv.getValue()+"_WRITE");
+            }
+            
+            if(priv.isRead()){
+                authorities.add(() -> role.getName()+"."+priv.getValue()+"_READ");
+            }
+        });
     }
+    
+    
+    
+    
 
     @Override
     public String getPassword() {

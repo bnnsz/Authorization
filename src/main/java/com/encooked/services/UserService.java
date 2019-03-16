@@ -5,11 +5,13 @@
  */
 package com.encooked.services;
 
+import com.encooked.entities.GrantedPriviledgeEntity;
 import com.encooked.entities.PriviledgeEntity;
 import com.encooked.entities.RoleEntity;
 import com.encooked.entities.UserEntity;
 import com.encooked.exceptions.RecordExistsException;
 import com.encooked.exceptions.RecordNotFoundException;
+import com.encooked.repositories.GrantedPriviledgeEntityRepository;
 import com.encooked.repositories.PriviledgeEntityRepository;
 import com.encooked.repositories.RoleEntityRepository;
 import com.encooked.repositories.UserEntityRepository;
@@ -18,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,6 +29,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  *
@@ -42,6 +47,9 @@ public class UserService {
     @Autowired
     PriviledgeEntityRepository priviledgeEntityRepository;
 
+    @Autowired
+    GrantedPriviledgeEntityRepository grantedPriviledgeEntityRepository;
+    
     public UserDetails getUser(String username) {
         return userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
@@ -76,7 +84,7 @@ public class UserService {
         principles.put("phone", phone);
 
         user.setPrinciples(principles);
-        
+
         userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new BadCredentialsException("User already exist"));
         userEntityRepository.save(user);
@@ -112,7 +120,7 @@ public class UserService {
     }
 
     public List<UserEntity> getAllUsersByPriviledge(String priviledge) {
-        Optional<PriviledgeEntity> priviledgeEntity = priviledgeEntityRepository.findByValue(priviledge);
+        Optional<GrantedPriviledgeEntity> priviledgeEntity = grantedPriviledgeEntityRepository.findByValue(priviledge);
         if (priviledgeEntity.isPresent()) {
             return priviledgeEntity.get()
                     .getRoles().stream()
@@ -123,82 +131,24 @@ public class UserService {
         return new ArrayList<>();
     }
 
-    public RoleEntity createRole(String name) throws RecordNotFoundException {
-        roleEntityRepository.findByName(name)
-                .orElseThrow(() -> new RecordNotFoundException(String.format("Role \"%s\" already exist", name)));
-        
-        RoleEntity role = new RoleEntity();
-        role.setName(name);
-        return roleEntityRepository.save(role);
-    }
-
-    public GrantedAuthority createAuthority(GrantedAuthority authority) throws RecordExistsException, RecordNotFoundException {
-        String role = authority.getAuthority().split(".")[0];
-        String priviledge = authority.getAuthority().split(".")[0];
-
-        RoleEntity roleEntity = roleEntityRepository.findByName(role)
-                .orElseThrow(() -> new RecordNotFoundException(String.format("Role \"%s\" does not exist", role)));
-
-        PriviledgeEntity priviledgeEntity = priviledgeEntityRepository.findByValue(priviledge)
-                .orElseThrow(() -> new RecordNotFoundException((String.format("Priviledge \"%s\" does not exist", priviledge))));
-
-        roleEntity.getPriviledges().stream().filter(p -> p.getValue().equals(priviledge)).findFirst()
-                .ifPresent(e -> new RecordExistsException("Authority already exists"));
-
-        
-        priviledgeEntity.getRoles().add(roleEntity);
-        roleEntity.getPriviledges().add(priviledgeEntity);
-        
-        return priviledgeEntity.of(roleEntityRepository.save(roleEntity));
-    }
-
-    public void removeAuthority(GrantedAuthority authority) throws RecordNotFoundException {
-        String role = authority.getAuthority().split(".")[0];
-        String priviledge = authority.getAuthority().split(".")[0];
-
-        RoleEntity roleEntity = roleEntityRepository.findByName(role)
-                .orElseThrow(() -> new RecordNotFoundException(String.format("Role \"%s\" does not exist", role)));
-
-        PriviledgeEntity priviledgeEntity = priviledgeEntityRepository.findByValue(priviledge)
-                .orElseThrow(() -> new RecordNotFoundException((String.format("Priviledge \"%s\" does not exist", priviledge))));
-        
-        roleEntity.getPriviledges().remove(priviledgeEntity);
-        
-        roleEntityRepository.save(roleEntity);
-    }
-
-    public int deleteRole(String name) {
-        return roleEntityRepository.deleteByName(name).size();
-    }
-
-    public PriviledgeEntity createPriviledges(String value) throws RecordNotFoundException{
-        priviledgeEntityRepository.findByValue(value)
-                .ifPresent(p -> new RecordExistsException((String.format("Priviledge \"%s\" already exist", p))));
-        
-        PriviledgeEntity priviledgeEntity = new PriviledgeEntity();
-        priviledgeEntity.setValue(value);
-        return priviledgeEntityRepository.save(priviledgeEntity);
-    }
-
-    public UserEntity updateUserProfile(String username, Map<String, String> principles) throws UsernameNotFoundException{
+     public UserEntity updateUserProfile(String username, Map<String, String> principles) throws UsernameNotFoundException {
         UserEntity user = userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
-        
+
         principles.keySet().forEach(key -> {
             user.getPrinciples().put(key.toLowerCase(), principles.get(key));
         });
-        
-       return  userEntityRepository.save(user);
+
+        return userEntityRepository.save(user);
     }
-    
-    
-    public boolean changePassword(String username, String oldPassword, String newPassword) throws UsernameNotFoundException{
+
+    public boolean changePassword(String username, String oldPassword, String newPassword) throws UsernameNotFoundException {
         UserEntity user = userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
-        if(user.getPassword().equals(oldPassword)){
+        if (user.getPassword().equals(oldPassword)) {
             user.setPassword(newPassword);
         }
-        return  userEntityRepository.save(user).getPassword().equals(newPassword);
+        return userEntityRepository.save(user).getPassword().equals(newPassword);
     }
 
 }

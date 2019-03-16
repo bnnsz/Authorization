@@ -32,7 +32,7 @@ public class RoleEntity implements Serializable {
     private String name;
 
     @ManyToMany
-    private Set<PriviledgeEntity> priviledges = new HashSet<>();
+    private Set<GrantedPriviledgeEntity> priviledges = new HashSet<>();
 
     @ManyToMany(mappedBy = "roles")
     private Set<UserEntity> users = new HashSet<>();
@@ -75,14 +75,14 @@ public class RoleEntity implements Serializable {
     /**
      * @return the priviledges
      */
-    public Set<PriviledgeEntity> getPriviledges() {
+    public Set<GrantedPriviledgeEntity> getPriviledges() {
         return priviledges;
     }
 
     /**
      * @param priviledges the priviledges to set
      */
-    public void setPriviledges(Set<PriviledgeEntity> priviledges) {
+    public void setPriviledges(Set<GrantedPriviledgeEntity> priviledges) {
         this.priviledges = priviledges;
     }
 
