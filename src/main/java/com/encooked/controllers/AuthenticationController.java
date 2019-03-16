@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @RestController
 @RequestMapping("/oauth/v1")
-@Api("Authentication Api")
+@Api(value = "Authentication Api", description = "REST API for Authentication", tags = { "Oauth" })
 public class AuthenticationController {
     
     @Autowired

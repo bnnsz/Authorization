@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @RestController
 @RequestMapping("/api/v1/authorities")
-@Api(value = "Roles and Permissions API", description = "Roles and Permissions Rest API")
+@Api(value = "Roles and Permissions API", description = "Roles and Permissions Rest API", tags = {"Authorization"})
 public class AuthorityRestController {
 
     @Autowired
