@@ -61,23 +61,24 @@ public class AuthorityRestController {
         throw new Exception("Invalid type");
     }
 
-    @ApiOperation(value = "get list of all authorities by type")
+    @ApiOperation(value = "get list of all authorities by type, indicateSystem will add an axterix \"*\" at the end of the resource"
+            + "to indicate a sytem resource. A system resource cannot be deleted ")
     @ApiResponses(value = {
         @ApiResponse(code = 202, response = UserDto.class, message = "ACCEPTED"),
         @ApiResponse(code = 400, response = ErrorResponse.class, message = "BAD REQUEST"),
         @ApiResponse(code = 500, response = ErrorResponse.class, message = "INTERNAL SERVER ERROR")
     })
     @GetMapping("/{type}")
-    public ResponseEntity get(@PathVariable AuthorityType type) throws RecordNotFoundException, Exception {
+    public ResponseEntity get(@PathVariable AuthorityType type, @RequestParam boolean indicateSystem) throws RecordNotFoundException, Exception {
         switch (type) {
             case GRANT:
                 List<String> authorities = authorityService.getAllAuthorities();
                 return ResponseEntity.accepted().body(authorities);
             case PRIVILEDGE:
-                List<String> permissions = authorityService.getAllPermission();
+                List<String> permissions = authorityService.getAllPermission(indicateSystem);
                 return ResponseEntity.accepted().body(permissions);
             case ROLE:
-                List<String> roles = authorityService.getAllRoles();
+                List<String> roles = authorityService.getAllRoles(indicateSystem);
                 return ResponseEntity.accepted().body(roles);
         }
         throw new Exception("Invalid type");

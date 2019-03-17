@@ -5,15 +5,19 @@
  */
 package com.encooked.entities;
 
+import com.encooked.components.EntityListener;
 import com.google.gson.Gson;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
+import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  *
  * @author ObinnaAsuzu
  */
+@EntityListeners(EntityListener.class)
 @MappedSuperclass
 public abstract class AbstractEntity {
 

@@ -6,36 +6,80 @@
 package com.encooked.entities;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
 /**
  *
  * @author obinna.asuzu
  */
 @Entity
-public class GrantedPriviledgeEntity extends PriviledgeEntity implements Serializable {
+public class GrantedPriviledgeEntity extends AbstractEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @Column
+    private String value;
+    @Column(name="gp_read")
     private boolean read;
-    @Column
+    @Column(name="gp_write")
     private boolean write;
+    @Column
+    private boolean system;
 
-    @ManyToMany(mappedBy = "priviledges")
-    private Set<RoleEntity> roles = new HashSet<>();
+    @ManyToOne
+    private RoleEntity role;
 
     public GrantedPriviledgeEntity() {
     }
 
     public GrantedPriviledgeEntity(String value) {
-        setValue(value);
+        this.value = value;
     }
+    
+    public GrantedPriviledgeEntity(String value, boolean system) {
+        this.value = value;
+        this.system = system;
+    }
+    
+    public GrantedPriviledgeEntity(String value,boolean read, boolean write) {
+        this(value);
+        this.read = read;
+        this.write = write;
+    }
+    
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the value
+     */
+    public String getValue() {
+        return value;
+    }
+    
+   
+
+    /**
+     * @param value the value to set
+     */
+    public void setValue(String value) {
+        this.value = value;
+    }
+    
+    
 
     /**
      * @return the read
@@ -66,17 +110,31 @@ public class GrantedPriviledgeEntity extends PriviledgeEntity implements Seriali
     }
 
     /**
-     * @return the roles
+     * @return the system
      */
-    public Set<RoleEntity> getRoles() {
-        return roles;
+    public boolean isSystem() {
+        return system;
     }
 
     /**
-     * @param roles the roles to set
+     * @param system the system to set
      */
-    public void setRoles(Set<RoleEntity> roles) {
-        this.roles = roles;
+    public void setSystem(boolean system) {
+        this.system = system;
+    }
+
+    /**
+     * @return the role
+     */
+    public RoleEntity getRole() {
+        return role;
+    }
+
+    /**
+     * @param role the role to set
+     */
+    public void setRole(RoleEntity role) {
+        this.role = role;
     }
 
     @Override

@@ -6,11 +6,8 @@
 package com.encooked.services;
 
 import com.encooked.entities.GrantedPriviledgeEntity;
-import com.encooked.entities.PriviledgeEntity;
 import com.encooked.entities.RoleEntity;
 import com.encooked.entities.UserEntity;
-import com.encooked.exceptions.RecordExistsException;
-import com.encooked.exceptions.RecordNotFoundException;
 import com.encooked.repositories.GrantedPriviledgeEntityRepository;
 import com.encooked.repositories.PriviledgeEntityRepository;
 import com.encooked.repositories.RoleEntityRepository;
@@ -20,16 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
 /**
  *
@@ -50,6 +43,20 @@ public class UserService {
     @Autowired
     GrantedPriviledgeEntityRepository grantedPriviledgeEntityRepository;
     
+    
+    
+    public UserDetails activateUser(String username) throws Exception, UsernameNotFoundException {
+        UserEntity user = userEntityRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        if(user.isEnabled()){
+            throw new Exception("Account is already active");
+        }
+        user.setEnabled(true);
+        user.setCredentialsNonExpired(true);
+        userEntityRepository.save(user);
+        return user;
+    }
+    
     public UserDetails getUser(String username) {
         return userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
@@ -67,7 +74,8 @@ public class UserService {
             String firstname,
             String lastname,
             String email,
-            String phone) {
+            String phone,
+            List<String> roles) {
         UserEntity user = new UserEntity();
         user.setUsername(username);
         user.setPassword(password);
@@ -87,13 +95,27 @@ public class UserService {
 
         userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new BadCredentialsException("User already exist"));
+        
+        
+        userEntityRepository.save(user);
+        roles.forEach(roleName -> {
+            Optional<RoleEntity> role = roleEntityRepository.findByName(roleName);
+            if(role.isPresent()){
+                RoleEntity r = role.get();
+                r.getUsers().add(user);
+                user.getRoles().add(r);
+            }
+        });
         userEntityRepository.save(user);
         return user;
     }
 
-    public boolean deactivateUser(String username) {
+    public boolean deactivateUser(String username) throws Exception {
         UserEntity user = userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        if(user.isSystem()){
+            throw new Exception("You cannot deactivate a system user");
+        }
         user.setEnabled(false);
         userEntityRepository.save(user);
         return true;
@@ -120,15 +142,12 @@ public class UserService {
     }
 
     public List<UserEntity> getAllUsersByPriviledge(String priviledge) {
-        Optional<GrantedPriviledgeEntity> priviledgeEntity = grantedPriviledgeEntityRepository.findByValue(priviledge);
-        if (priviledgeEntity.isPresent()) {
-            return priviledgeEntity.get()
-                    .getRoles().stream()
-                    .map(r -> r.getUsers())
+        return grantedPriviledgeEntityRepository.findByValue(priviledge)
+                .stream()
+                .map(p -> p.getRole())
+                .map(r -> r.getUsers())
                     .flatMap(r -> r.stream())
                     .collect(Collectors.toList());
-        }
-        return new ArrayList<>();
     }
 
      public UserEntity updateUserProfile(String username, Map<String, String> principles) throws UsernameNotFoundException {

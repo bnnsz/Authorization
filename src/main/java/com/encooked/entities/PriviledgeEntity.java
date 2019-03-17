@@ -11,16 +11,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 
 /**
  *
  * @author obinna.asuzu
  */
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-public class PriviledgeEntity implements Serializable{
+public class PriviledgeEntity extends AbstractEntity implements Serializable {
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,6 +26,21 @@ public class PriviledgeEntity implements Serializable{
 
     @Column
     private String value;
+
+    @Column
+    private boolean system;
+
+    public PriviledgeEntity() {
+    }
+
+    public PriviledgeEntity(String value) {
+        this.value = value;
+    }
+
+    public PriviledgeEntity(String value, boolean system) {
+        this.value = value;
+        this.system = system;
+    }
 
     public Long getId() {
         return id;
@@ -43,8 +56,6 @@ public class PriviledgeEntity implements Serializable{
     public String getValue() {
         return value;
     }
-    
-   
 
     /**
      * @param value the value to set
@@ -53,9 +64,19 @@ public class PriviledgeEntity implements Serializable{
         this.value = value;
     }
 
-    
+    /**
+     * @return the system
+     */
+    public boolean isSystem() {
+        return system;
+    }
 
-    
+    /**
+     * @param system the system to set
+     */
+    public void setSystem(boolean system) {
+        this.system = system;
+    }
 
     @Override
     public int hashCode() {

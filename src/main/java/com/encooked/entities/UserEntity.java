@@ -5,6 +5,7 @@
  */
 package com.encooked.entities;
 
+import com.encooked.util.CredentialConverter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,10 +14,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -40,9 +43,10 @@ public class UserEntity extends AbstractEntity implements Serializable, UserDeta
     private String username;
 
     @Column
+    @Convert(converter = CredentialConverter.class)
     private String password;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private Set<RoleEntity> roles = new HashSet<>();
 
     @Column
@@ -57,6 +61,9 @@ public class UserEntity extends AbstractEntity implements Serializable, UserDeta
     @Column
     private boolean accountNonExpired;
     
+    @Column
+    private boolean system;
+
     @ElementCollection
     private Map<String, String> principles = new HashMap<>();
 
@@ -64,7 +71,7 @@ public class UserEntity extends AbstractEntity implements Serializable, UserDeta
 
     public UserEntity() {
     }
-    
+
     public UserEntity(Long id, String username, String password, boolean enabled, boolean accountNonLocked, boolean credentialsNonExpired, boolean accountNonExpired) {
         this.id = id;
         this.username = username;
@@ -74,7 +81,7 @@ public class UserEntity extends AbstractEntity implements Serializable, UserDeta
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonExpired = accountNonExpired;
     }
-    
+
     public UserEntity edit(UserDetails userDetais) {
         this.id = id;
         this.username = userDetais.getUsername();
@@ -141,21 +148,17 @@ public class UserEntity extends AbstractEntity implements Serializable, UserDeta
     }
 
     private void addToAuthority(RoleEntity role) {
-        authorities.add(() -> "ROLE_"+role.getName());
-        role.getPriviledges().forEach(priv ->{
-            if(priv.isWrite()){
-                authorities.add(() -> role.getName()+"."+priv.getValue()+"_WRITE");
+        authorities.add(() -> "ROLE_" + role.getName());
+        role.getPriviledges().forEach(priv -> {
+            if (priv.isWrite()) {
+                authorities.add(() -> role.getName() + "." + priv.getValue() + "_WRITE");
             }
-            
-            if(priv.isRead()){
-                authorities.add(() -> role.getName()+"."+priv.getValue()+"_READ");
+
+            if (priv.isRead()) {
+                authorities.add(() -> role.getName() + "." + priv.getValue() + "_READ");
             }
         });
     }
-    
-    
-    
-    
 
     @Override
     public String getPassword() {
@@ -229,6 +232,20 @@ public class UserEntity extends AbstractEntity implements Serializable, UserDeta
      */
     public void setAccountNonExpired(boolean accountNonExpired) {
         this.accountNonExpired = accountNonExpired;
+    }
+
+    /**
+     * @return the system
+     */
+    public boolean isSystem() {
+        return system;
+    }
+
+    /**
+     * @param system the system to set
+     */
+    public void setSystem(boolean system) {
+        this.system = system;
     }
 
     /**

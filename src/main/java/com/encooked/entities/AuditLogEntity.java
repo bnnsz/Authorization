@@ -44,9 +44,6 @@ public class AuditLogEntity implements Serializable {
     @Column
     private String entityRef;
     
-    @Column
-    private String entityState;
-    
 
     public Long getId() {
         return id;
@@ -128,19 +125,7 @@ public class AuditLogEntity implements Serializable {
         this.entityRef = entityRef;
     }
 
-    /**
-     * @return the entityState
-     */
-    public String getEntityState() {
-        return entityState;
-    }
-
-    /**
-     * @param entityState the entityState to set
-     */
-    public void setEntityState(String entityState) {
-        this.entityState = entityState;
-    }
+    
 
     @Override
     public int hashCode() {

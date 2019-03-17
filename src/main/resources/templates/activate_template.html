@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+        <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.5" />
+
+            <style type="text/css">
+                <link rel="stylesheet" href="//cloud.typography.com/7898432/715602/css/fonts.css">
+                <link rel="stylesheet" href="../css/lyft-font-2.min.css">
+
+                @import url(https://lyft-assets.s3.amazonaws.com/email/ClobberRegular.otf);
+                @font-face {
+                    font-family: 'Clobber';
+                    src: url("https://lyft-assets.s3.amazonaws.com/email/ClobberRegular.otf") format("opentype");
+                    font-weight: normal;
+                    font-style: normal;
+                }
+
+                @font-face {
+                    font-family: 'Gotham-Book';
+                    src: url("https://take.lyft.com.s3.amazonaws.com/ride/fonts/Gotham-Book.otf") format("opentype");
+                    font-weight:normal;
+                    font-style:normal;
+                }
+                @font-face {
+                    font-family: 'Gotham-Bold';
+                    src: url("https://take.lyft.com.s3.amazonaws.com/ride/fonts/Gotham-Bold.otf") format("opentype");
+                    font-weight:normal;
+                    font-style:normal;
+                }
+                @font-face {
+                    font-family: 'Gotham-Medium';
+                    src: url("https://take.lyft.com.s3.amazonaws.com/ride/fonts/Gotham-Medium.otf") format("opentype");
+                    font-weight:normal;
+                    font-style:normal;
+                }
+
+                @import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
+                @font-face {
+                    font-family: 'Montserrat';
+                    font-style: normal;
+                    font-weight: 400;
+                    src: local('Montserrat-Regular'), url(http://themes.googleusercontent.com/static/fonts/montserrat/v4/zhcz-_WihjSQC0oHJ9TCYL3hpw3pgy2gAi-Ip7WPMi0.woff) format('woff');
+                }
+                @font-face {
+                    font-family: 'Montserrat';
+                    font-style: normal;
+                    font-weight: 700;
+                    src: local('Montserrat-Bold'), url(http://themes.googleusercontent.com/static/fonts/montserrat/v4/IQHow_FEYlDC4Gzy_m8fcnbFhgvWbfSbdVg11QabG8w.woff) format('woff');
+                }
+
+                body {
+                    margin-top: 0 !important;
+                    margin-bottom: 0 !important;
+                    padding-top: 0 !important;
+                    padding-bottom: 0 !important;
+                    width: 100% !important;
+                    -webkit-text-size-adjust: 100% !important;
+                    -ms-text-size-adjust: 100% !important;
+                    -webkit-font-smoothing: antialiased !important;
+                }
+                img {
+                    border: 0 !important;
+                    outline: none !important;
+                }
+                table {
+                    border-collapse: collapse;
+                    mso-table-lspace: 0px !important;
+                    mso-table-rspace: 0px !important;
+                }s
+                td {
+                    border-collapse: collapse;
+                    mso-line-height-rule: exactly;
+                }
+                a, span {
+                    mso-line-height-rule: exactly;
+                }
+                .ExternalClass * {
+                    line-height: 100%;
+                }
+                .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass a, .ExternalClass div {
+                    line-height: 100%;
+                }
+                .f_num a {
+                    color: #808080;
+                    text-decoration: none;
+                }
+
+                @media only screen and (max-width:480px) {
+                    td[class=headline1] {
+                        font-size: 50px!important;
+                    }
+                    td[class=headline2] {
+                        font-size: 40px!important;
+                    }
+                    td[class=headline3] {
+                        font-size: 30px!important;
+                    }
+                    td[class=gap] {
+                        height:8px!important;
+                    }
+
+                    table[class=wrapper] {
+                        width: 100% !important;
+                    }
+                    img[class=wrapper] {
+                        width: 100% !important;
+                    }
+                    table[class=main_table] {
+                        width: 100% !important;
+                    }
+
+                    table[class=social] {
+                        border-width:0px 0px 0px 5px!important;
+                    }
+
+                    img[class=social_img] {
+                        width:170px !important;
+                        height:170px !important;
+                    }
+
+                    table[class=spacer] {
+                        margin-left:38px!important;
+                    }
+
+                    table[class=features] {
+                        text-align:center!important;
+                    }
+
+                    table[class=side] {
+                        padding: 0 0 0 25px !important;
+                    }
+
+                    td[class=side] {
+                        width: 20px !important;
+                    }
+                    td[class=aside] {
+                        padding: 0px 10px !important;
+                    }
+                    td[class=hide] {
+                        display: none !important;
+                    }
+                    table[class=hide] {
+                        display: none !important;
+                    }
+                    span[class=hide] {
+                        display: none !important;
+                    }
+
+                    table[class=mobile-center] {
+                        align: center!important;
+                    }
+
+                    td[class=block] {
+                        padding-bottom: 15px !important;
+                    }
+                    br[class=break] {
+                        display: none !important;
+                    }
+                    td[class=fix_height] {
+                        height: 30px !important;
+                    }
+                    td[class=title] {
+                        font-size: 34px !important;
+                        line-height: 38px !important;
+                    }
+                    td[class=text] {
+
+                    }
+                    td[class=header-text] {
+                        font-size: 1.3em !important;
+                        line-height: 1.3em !important;
+                        font-weight:bold !important;
+                    }
+                    td[class=disclaimer] {
+                        font-size: 0.9em !important;
+
+                    }
+                    img[class=full_img] {
+                        width: 100% !important;
+                        height: auto !important;
+                    }
+                    img[class=padded_img] {
+                        width:90%!important;
+                        padding: 0 20px 20px 20px;
+                        height:auto!important;
+                    }
+                    td[class=copyright] {
+                        font-size: 12px !important;
+                        text-align: center !important;
+                    }
+                    td[class=body_copy] {
+                        font-size:20px!important;
+                        line-height:30px!important;
+                    }
+                    img[class=mustache] {
+                        margin: 0 auto !important;
+                    }
+                    td[class=spacer-fix] {
+                        height: 20px !important;
+                        line-height:20px !important;
+                    }
+                    td[class=center-text] {
+                        text-align:center !important;
+
+
+                    }
+                    td[class=pad_bottom1] {
+                        padding-bottom: 20px !important;
+
+                    }
+                    .center-text {
+                        display:block;
+                        text-align:center !important;
+
+                    }
+                    .marg_bottom {
+                        margin-bottom:20px !important;
+                        width:100% !important;  
+                    }
+                    .left-fix {
+                        margin-left:0px !important;
+                        width:100% !important;
+                    }
+
+                }
+                @media only screen and (min-width:480px) and (max-width:550px) {
+                    table[class=wrapper] {
+                        width: 100% !important;
+                    }
+
+                    table[class=main_table] {
+                        width: 100% !important;
+                    }
+                    td[class=side] {
+                        width: 20px !important;
+                    }
+
+                    table[class=features] {
+                        align:center!important;
+                    }
+
+                    td[class=aside] {
+                        padding: 0px 10px !important;
+                    }
+                    td[class=hide] {
+                        display: none !important;
+                    }
+                    table[class=hide] {
+                        display: none !important;
+                    }
+                    span[class=hide] {
+                        display: none !important;
+                    }
+
+                    td[class=block] {
+                        padding-bottom: 20px !important;
+                    }
+                    br[class=break] {
+                        display: none !important;
+                    }
+                    td[class=fix_height] {
+                        height: 20px !important;
+                    }
+                    td[class=balloon] {
+                        width: 50px !important;
+                        height: auto !important;
+                    }
+                    img[class=full_img] {
+                        width: 100% !important;
+                        height: auto !important;
+                    }
+                    td[class=copyright] {
+                        font-size: 12px !important;
+                        text-align: center !important;
+                    }
+                    img[class=mustache] {
+                        margin: 0 auto !important;
+                    }
+                    td[class=pad_bottom1] {
+                        padding-bottom: 20px !important;
+
+                    }
+                    .marg_bottom {
+                        margin-bottom:20px !important;
+                        width:100% !important;}
+                    .left-fix {
+                        margin-left:0px !important;
+                        width:100% !important;
+                    }
+
+                    td[class=center-text] {
+                        text-align:center !important;
+
+                        display:block;
+
+                    }
+                    .center-text {
+                        display:block;
+                        text-align:center !important;
+
+                    }
+
+                }
+                @media only screen and (max-width:480px) {
+
+                    table[class=footerWrapper] {
+
+                        width: 160px !important;
+
+                    }
+
+                    table[class=spacer] {
+                        margin-left:38px!important;
+
+                    }
+
+                    img[class=footerIcon] {
+
+                        height: 17px !important;
+
+                        width: 16px !important;
+
+                    }
+
+                    table[class=footerFixHeight] {
+
+                        width: 7px !important;
+
+                    }
+
+                    td[class=footerFixHeight] {
+
+                        height: 7px !important;
+
+                    }
+                    td[class=pad_bottom1] {
+                        padding-bottom: 20px !important;
+
+                    }
+                    .marg_bottom {
+                        margin-bottom:20px !important;
+                        width:100% !important;}
+                    .left-fix {
+                        margin-left:0px !important;
+                        width:100% !important;
+                    }
+                    td[class=center-text] {
+                        text-align:center !important;
+                        display:block;
+
+                    }
+                    .center-text {
+                        display:block;
+                        text-align:center !important;
+
+                    }
+                    .mobile-block {
+                        display:block;
+                    }
+
+                }
+            </style>
+    </head>
+
+    <body marginwidth="0" marginheight="0" bgcolor="#F3F3F5" style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;   width: 100% !important;-webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-font-smoothing: antialiased; "
+          offset="0" topmargin="0" leftmargin="0">
+
+
+        <!--
+        Include this Content Area in your emails to leverage personalization fields from the passengers_realtime table.  All fields are contained in a single variable named @pax_realtime.  Access fields using Field(@pax_realtime,'FieldName').
+        -->
+
+
+        <!--
+        Include this Content Area in your emails to leverage personalization fields from the passengers_daily table.  All fields are contained in a single variable named @pax_daily.  Access fields using Field(@pax_daily,'FieldName').
+        -->
+
+
+        <!--
+        Include this Content Area in your emails to leverage personalization fields from the users_daily table.  All fields are contained in a single variable named @users_daily.  Access fields using Field(@users_daily,'FieldName').
+        -->
+
+
+        <!--
+        Include this Content Area in your emails to leverage personalization fields from the users_realtime table.  All fields are contained in a single variable named @users_realtime.  Access fields using Field(@users_realtime,'FieldName').
+        -->
+
+
+        <!-- conditionally set pluralization of ride -->
+
+
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" bgcolor="#F3F3F5">
+            <tr>
+                <td>
+                    <table width="600" style="max-width:600px;" cellspacing="0" cellpadding="0" border="0" align="center" class="main_table" bgcolor="#F3F3F5">
+                        <tr>
+                            <td>
+                                <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+
+                                    <!-- Header Section -->
+                                    <tr>
+                                        <td bgcolor="#F3F3F5">
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" bgcolor="#F3F3F5">
+                                                <tr>
+                                                    <td height="10" bgcolor="#F3F3F5">&nbsp;</td>
+                                                </tr>
+                                                <td width="237" class="hide">&nbsp;</td>
+                                                <td width="51" align="center"><img src="http://encooked.com/images/encooked-icon.png" width="170" height="70" style="display:block;" border="0" /></td>
+                                                <td width="237" class="hide">&nbsp;</td>
+                                                <tr>
+                                                    <td height="10" bgcolor="#F3F3F5">&nbsp;</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <!-- //Header Section -->
+
+                                    <tr>
+                                        <td bgcolor="#FFFFFF"><span width="600" style="display: block;border-left:0px solid #FFFFFF;border-right:0px solid #FFFFFF;border-bottom:1px solid #F3F3F5;border-top:3px solid #FF00BF;">
+                                                <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+
+
+                                                    <tr>
+                                                        <td align="center" valign="top"><table align="center" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td align="center" style="font-family: Gotham, Montserrat, 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: center;">
+                                                                            <img class="full_img" width="600" src="http://image.lyftmail.com/lib/fe6915707166047a7d14/m/4/IllustratedCityHeaders_chi.png" border="0" title="city_header" alt="city_header" thid="2a61d123-e027-4239-8110-abb8ec545e7e" style="border-color: #000000; margin: 0px;" />
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+
+                                                            <table align="center" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td height="25">&nbsp;</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="center">
+                                                                            <table align="center" cellspacing="0" cellpadding="0" border="0">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td align="center" style="font-family: Gotham, Montserrat, 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: center; color: #474c62; line-height: 45px; font-weight: bold; font-size: 40px; padding-bottom: 10px; padding-left: 60px; padding-right: 60px;">
+                                                                                            ${title}
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="center">
+                                                                            <table align="center" cellspacing="0" cellpadding="0" border="0">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td align="center" style="font-family: Gotham, Montserrat, 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: center; color: #474c62; line-height: 30px; font-weight: normal; font-size: 20px; padding-bottom: 15px; padding-left: 60px; padding-right: 60px;">
+                                                                                            ${heading}
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="center">
+                                                                            <table align="center" cellspacing="0" cellpadding="0" border="0">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td align="center" style="font-family: Gotham, Montserrat, 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: center; color: #474c62; line-height: 45px; font-weight: normal; font-size: 16px; padding-bottom: 15px; padding-left: 60px; padding-right: 60px;">
+                                                                                            ${message} 
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            <!-- Path: Passengers > REFACTOR > Automations > 1 - Activation > Master > CTA - Credit -->
+                                                            <table width="100%" cellpadding="0" cellspacing="0" border="0" align="center">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td align="center" width="100%">
+                                                                            <a href="${activation.url}" target="_blank" style="text-decoration: none; color: #ffffff; line-height: 16px; display: block; width: 160px; height:44px;">
+                                                                                <table width="180" height="44" border="0" cellspacing="0" cellpadding="0" align="center" class="wrapper" style="margin-left: 0px; border-radius: 4px; background: #ff00bf;">
+                                                                                    <tbody>
+                                                                                        <tr>
+                                                                                            <td>
+                                                                                                <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" class="wrapper">
+                                                                                                    <tbody>
+                                                                                                        <tr>
+                                                                                                            <td align="center" valign="middle" style="font-family: Gotham, Montserrat, 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; color: #ffffff; font-weight: bold; ">
+                                                                                                                <!-- Button Text --> 
+                                                                                                                    Activate Account
+                                                                                                                <!--//   Button Text --></td>
+                                                                                                        </tr>
+                                                                                                    </tbody>
+                                                                                                </table>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </a></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td height="40">&nbsp;</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+
+                                                        </td>
+                                                    </tr> 
+                                                    <tr>
+                                                        <td align="center" valign="top"><!-- separator background bar -->
+                                                            <table bgcolor="#F3F3F5" align="center" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td height="16">&nbsp;</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table></td>
+                                                    </tr>  
+
+                                                    <tr>
+                                                        <td bgcolor="#FFFFFF">
+                                                            <div style="display:none; white-space:nowrap; font:15px courier; color:#ffffff;line-height:5px;background-color:#FFFFFF">
+                                                                - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                </table>
+                                            </span>
+                                            <!-- Footer -->
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+                                                <tr>
+                                                    <td bgcolor="#F3F3F5">
+                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+                                                            <tr>
+                                                                <td height="10" class="footerFixHeight" style="font-size:1px; line-height:1px;">&nbsp;</td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td bgcolor="#F3F3F5">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" bgcolor="#F3F3F5">
+                                                                        <tr>
+
+                                                                            <td valign="top">
+                                                                                <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+                                                                                    <tr>
+                                                                                        <!-- Margin -->
+                                                                                        <td width="10">&nbsp;</td>
+                                                                                        <td>
+                                                                                            <table width="340" border="0" cellspacing="0" cellpadding="0" align="right" class="wrapper">
+                                                                                                <tr>
+                                                                                                    <td>
+                                                                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+                                                                                                            <tr>
+                                                                                                                <td align="right" class="copyright" style="color:#384049;font-family: Gotham, Clobber, 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:10px;line-height:18px; font-weight:400;"><span class="mobile-block">548 Market St. #68514
+                                                                                                                        San Francisco, CA 94104</span> &copy; 2016 Lyft, Inc.</td>
+
+
+                                                                                                                <td width="10">&nbsp;</td>
+                                                                                                            </tr>
+                                                                                                        </table>
+                                                                                                    </td>
+                                                                                                </tr>
+
+                                                                                            </table>
+                                                                                            <table width="250" border="0" cellspacing="0" cellpadding="0" align="left" class="wrapper">
+                                                                                                <tr>
+
+                                                                                                    <td align="center">
+                                                                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+                                                                                                            <tr>
+                                                                                                                <td align="left" valign="top" class="copyright" style="color:#384049;font-family: Gotham, Clobber, 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:10px;line-height:18px; font-weight:normal;"><a href="#"
+                                                                                                                                                                                                        target="_blank" style="color:#384049; text-decoration:none;">View in Browser</a> &nbsp;|&nbsp; <a href="#"
+                                                                                                                                                                                                        target="_blank" style="color:#384049; text-decoration:none;">Unsubscribe</a> &nbsp;|&nbsp;
+                                                                                                                    <a href="#" target="_blank" style="color:#384049; text-decoration:none;">Contact</a></td>
+
+                                                                                                            </tr>
+
+
+                                                                                                        </table>
+                                                                                                    </td>
+                                                                                                </tr>
+                                                                                            </table>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </table>
+                                                                            </td>
+                                                                        </tr>
+
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#F3F3F5">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" bgcolor="#F3F3F5">
+                                                                        <tr>
+                                                                            <td height="10" bgcolor="#F3F3F5">&nbsp;</td>
+                                                                        </tr>
+                                                                        <td width="208" class="hide">&nbsp;</td>
+                                                                        <td width="104" align="center">
+                                                                            <table>
+                                                                                <tr>
+
+                                                                                    <td>
+                                                                                        <a href="http://click.lyftmail.com/?qs=3a776de8c82aed5ab9e615c4bd2045a62235b1e75f683c694b8487ea6be4e14909435003403f24ec" target="_blank"><img src="http://image.lyftmail.com/lib/fe6915707166047a7d14/m/2/facebook_dkgr_transparent.png" width="27" height="37" style="display:block;" border="0" /></td>
+                                                                                    <td>
+                                                                                        <a href="http://click.lyftmail.com/?qs=3a776de8c82aed5a57bb82f56c8852c975f842cc5028bd0f2bf50947411830471c8163e19e51b356" target="_blank"><img src="http://image.lyftmail.com/lib/fe6915707166047a7d14/m/2/twitter_dkgr_transparent.png" width="40" height="37" style="display:block;" border="0" /></a>
+                                                                                    </td>
+                                                                                    <td width="32" height="37">
+                                                                                        <a href="http://click.lyftmail.com/?qs=3a776de8c82aed5ab4a61cdc4c9796c4106fe68805a617f87a9d4ffb07e1dd88251308228f67328c" target="_blank"><img src="http://image.lyftmail.com/lib/fe6915707166047a7d14/m/2/instagram_dkgr_transparent.png" width="32" height="37" style="display:block;" border="0" /></td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                        <td width="208" class="hide">&nbsp;</td>
+                                                                        <tr>
+                                                                            <td height="10" bgcolor="#F3F3F5">&nbsp;</td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td height="10" class="footerFixHeight" style="font-size:1px; line-height:1px;" bgcolor="#F3F3F5">&nbsp;</td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                                <!--// Footer -->
+                                            </table>
+                                        </td>
+                                    </tr>
+
+
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+
+</html>
+</body>
+
+</html>

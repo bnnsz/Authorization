@@ -5,15 +5,19 @@
  */
 package com.encooked.controllers;
 
+import com.encooked.components.JwtTokenUtil;
+import com.encooked.components.MessageComponent;
 import com.encooked.dto.UserDto;
 import com.encooked.entities.UserEntity;
 import com.encooked.dto.ErrorResponse;
 import com.encooked.services.UserService;
+import freemarker.template.TemplateException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import java.io.IOException;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
@@ -39,11 +43,16 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @RestController
 @RequestMapping("/api/v1/users")
-@Api(value = "User API",description = "User Rest API", authorizations = {@Authorization("USER_READ")}, tags = {"User"})
+@Api(value = "User API", description = "User Rest API", authorizations = {
+    @Authorization("USER_READ")}, tags = {"User"})
 public class UserRestController {
 
     @Autowired
     UserService userService;
+    @Autowired
+    MessageComponent messageComponent;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     @ApiOperation(value = "Return list of users")
     @ApiResponses(value = {
@@ -80,7 +89,7 @@ public class UserRestController {
         }
         return ResponseEntity.ok(userService.getUserProfile(resolve(id)));
     }
-    
+
     @ApiOperation(value = "get user profile infomations by username or \"me\" as id for logged in user")
     @ApiResponses(value = {
         @ApiResponse(code = 202, response = Map.class, message = "ACCEPTED"),
@@ -91,7 +100,7 @@ public class UserRestController {
         UserEntity user = userService.updateUserProfile(resolve(id), principles);
         return ResponseEntity.accepted().body(new UserDto(user));
     }
-    
+
     @ApiOperation(value = "change password for the specified username or \"me\" as id for logged in user")
     @ApiResponses(value = {
         @ApiResponse(code = 202, response = Boolean.class, message = "ACCEPTED"),
@@ -99,10 +108,10 @@ public class UserRestController {
     })
     @PostMapping("/{id}/changePassword")
     public ResponseEntity changePassword(
-            @PathVariable String id, 
-            @RequestBody String oldPassword, 
+            @PathVariable String id,
+            @RequestBody String oldPassword,
             @RequestBody String newPassword) {
-        boolean changed = userService.changePassword(resolve(id), oldPassword,newPassword);
+        boolean changed = userService.changePassword(resolve(id), oldPassword, newPassword);
         return ResponseEntity.accepted().body(changed);
     }
 
@@ -120,8 +129,32 @@ public class UserRestController {
         String lastname = user.getPrinciples().get("lastname");
         String email = user.getPrinciples().get("email");
         String phone = user.getPrinciples().get("phone");
+        List<String> roles = user.getRoles();
 
-        UserEntity createdUser = userService.createUser(username, password, firstname, lastname, email, phone);
+        UserEntity createdUser = userService.createUser(username, password, firstname, lastname, email, phone, roles);
+        return ResponseEntity.accepted().body(new UserDto(createdUser));
+    }
+
+    @ApiOperation(value = "create new user")
+    @ApiResponses(value = {
+        @ApiResponse(code = 202, response = UserDto.class, message = "ACCEPTED"),
+        @ApiResponse(code = 400, response = ErrorResponse.class, message = "BAD REQUEST"),
+        @ApiResponse(code = 500, response = ErrorResponse.class, message = "INTERNAL SERVER ERROR")
+    })
+    @PostMapping("/register")
+    public ResponseEntity registerUser(@RequestBody UserDto user) throws Exception {
+        String username = user.getUsername();
+        String password = user.getPassword();
+        String firstname = user.getPrinciples().get("firstname");
+        String lastname = user.getPrinciples().get("lastname");
+        String email = user.getPrinciples().get("email");
+        String phone = user.getPrinciples().get("phone");
+        List<String> roles = user.getRoles();
+
+        UserEntity createdUser = userService.createUser(username, password, firstname, lastname, email, phone, roles);
+        if (createdUser != null) {
+            messageComponent.sendAcivationEmail(user, jwtTokenUtil.doGenerateToken(createdUser));
+        }
         return ResponseEntity.accepted().body(new UserDto(createdUser));
     }
 
@@ -132,7 +165,7 @@ public class UserRestController {
         @ApiResponse(code = 500, response = Boolean.class, message = "INTERNAL SERVER ERROR")
     })
     @DeleteMapping("/{id}/")
-    public ResponseEntity delete(@PathVariable String id) {
+    public ResponseEntity delete(@PathVariable String id) throws Exception {
         if (id.equalsIgnoreCase("me")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse("You cannot delete your account"));
         } else {

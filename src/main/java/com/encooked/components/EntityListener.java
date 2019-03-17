@@ -10,20 +10,17 @@ import com.encooked.entities.AuditLogEntity;
 import com.encooked.entities.enums.AuditLogAction;
 import static com.encooked.entities.enums.AuditLogAction.*;
 import com.encooked.repositories.AuditLogEntityRepository;
-import com.google.gson.Gson;
 import java.time.LocalDateTime;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 /**
  *
  * @author ObinnaAsuzu
  */
-@Component
 public class EntityListener {
 
     @Autowired
@@ -51,14 +48,17 @@ public class EntityListener {
     }
 
     public void audit(AbstractEntity item, AuditLogAction action) {
+        AutowireHelper.autowire(this, this.repository);
         AuditLogEntity log = new AuditLogEntity();
-        Gson gson = new Gson();
-        log.setEntityState(gson.toJson(item));
         log.setTimestamp(LocalDateTime.now());
         log.setEntityRef(String.valueOf(item.getId()));
         log.setEntityName(item.getClass().getSimpleName());
         log.setAction(action);
-        log.setUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        try {
+            log.setUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        } catch (Exception e) {
+            log.setUsername("anonymous");
+        }
         repository.save(log);
     }
 }

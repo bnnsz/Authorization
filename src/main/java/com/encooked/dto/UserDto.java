@@ -9,9 +9,11 @@ import com.encooked.entities.UserEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,7 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author obinna.asuzu
  */
 @ApiModel(value = "User", description = "User infomation, credentials and principles")
-public class UserDto implements UserDetails, Serializable {
+public class UserDto implements Serializable {
 
     @ApiModelProperty(value = "username of User")
     private String username;
@@ -31,7 +33,7 @@ public class UserDto implements UserDetails, Serializable {
     @ApiModelProperty(value = "User principles")
     private Map<String, String> principles = new HashMap<>();
     @ApiModelProperty(value = "user's granted authorities")
-    private String grantedAuthorities;
+    private List<String> grantedAuthorities = new ArrayList<>();
     @ApiModelProperty(value = "true if user account is enabled otherwise false")
     private boolean enabled;
     @ApiModelProperty(value = "true if user account is not locked otherwise false")
@@ -40,26 +42,35 @@ public class UserDto implements UserDetails, Serializable {
     private boolean credentialsNonExpired;
     @ApiModelProperty(value = "true if user account is not expired otherwise false")
     private boolean accountNonExpired;
+    @ApiModelProperty(value = "Indicates that user account is a system accoun. System account cannot be deactivated",readOnly = true)
+    private boolean system;
+    @ApiModelProperty(value = "User roles")
+    private List<String> roles = new ArrayList<>();
 
     public UserDto(UserDetails other) {
         this.username = other.getUsername();
         this.password = other.getPassword();
-        this.grantedAuthorities = other.getAuthorities().stream().map(g -> g.toString()).collect(Collectors.joining(","));
+        this.grantedAuthorities = other.getAuthorities().stream().map(g -> g.getAuthority()).collect(Collectors.toList());
         this.accountNonExpired = other.isAccountNonExpired();
         this.accountNonLocked = other.isAccountNonLocked();
         this.credentialsNonExpired = other.isCredentialsNonExpired();
         this.enabled = other.isEnabled();
+        this.roles  = this.grantedAuthorities.stream().filter(a -> a.startsWith("ROLE_"))
+                .map(a -> a.split("_")[1]).collect(Collectors.toList());
     }
 
     public UserDto(UserEntity other) {
         this.username = other.getUsername();
         this.password = other.getPassword();
-        this.grantedAuthorities = other.getAuthorities().stream().map(g -> g.toString()).collect(Collectors.joining(","));
+        this.grantedAuthorities = other.getAuthorities().stream().map(g -> g.getAuthority()).collect(Collectors.toList());
         this.accountNonExpired = other.isAccountNonExpired();
         this.accountNonLocked = other.isAccountNonLocked();
         this.credentialsNonExpired = other.isCredentialsNonExpired();
         this.enabled = other.isEnabled();
         this.principles = other.getPrinciples();
+        this.system = other.isSystem();
+        this.roles  = this.grantedAuthorities.stream().filter(a -> a.startsWith("ROLE_"))
+                .map(a -> a.split("_")[1]).collect(Collectors.toList());
     }
 
     /**
@@ -76,33 +87,22 @@ public class UserDto implements UserDetails, Serializable {
         this.username = username;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.asList(grantedAuthorities.split(",")).stream()
-                .map(g -> (GrantedAuthority) () -> g).collect(Collectors.toList());
-    }
-
-    @Override
     public String getPassword() {
         return password;
     }
 
-    @Override
     public boolean isAccountNonExpired() {
         return accountNonExpired;
     }
 
-    @Override
     public boolean isAccountNonLocked() {
         return accountNonLocked;
     }
 
-    @Override
     public boolean isCredentialsNonExpired() {
         return credentialsNonExpired;
     }
 
-    @Override
     public boolean isEnabled() {
         return enabled;
     }
@@ -131,14 +131,14 @@ public class UserDto implements UserDetails, Serializable {
     /**
      * @return the grantedAuthorities
      */
-    public String getGrantedAuthorities() {
+    public List<String> getGrantedAuthorities() {
         return grantedAuthorities;
     }
 
     /**
      * @param grantedAuthorities the grantedAuthorities to set
      */
-    public void setGrantedAuthorities(String grantedAuthorities) {
+    public void setGrantedAuthorities(List<String> grantedAuthorities) {
         this.grantedAuthorities = grantedAuthorities;
     }
 
@@ -168,6 +168,34 @@ public class UserDto implements UserDetails, Serializable {
      */
     public void setAccountNonExpired(boolean accountNonExpired) {
         this.accountNonExpired = accountNonExpired;
+    }
+
+    /**
+     * @return the system
+     */
+    public boolean isSystem() {
+        return system;
+    }
+
+    /**
+     * @param system the system to set
+     */
+    public void setSystem(boolean system) {
+        this.system = system;
+    }
+
+    /**
+     * @return the roles
+     */
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    /**
+     * @param roles the roles to set
+     */
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 
     public boolean validate(UserDto userDetails) {

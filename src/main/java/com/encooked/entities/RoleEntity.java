@@ -9,19 +9,22 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 /**
  *
  * @author obinna.asuzu
  */
 @Entity
-public class RoleEntity implements Serializable {
+public class RoleEntity extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -31,10 +34,13 @@ public class RoleEntity implements Serializable {
     @Column
     private String name;
 
-    @ManyToMany
+    @Column
+    private boolean system;
+
+    @OneToMany(mappedBy = "role", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<GrantedPriviledgeEntity> priviledges = new HashSet<>();
 
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
     private Set<UserEntity> users = new HashSet<>();
 
     public RoleEntity() {
@@ -43,6 +49,11 @@ public class RoleEntity implements Serializable {
     public RoleEntity(String name) {
         this();
         this.name = name;
+    }
+    
+    public RoleEntity(String name, boolean system) {
+        this.name = name;
+        this.system = system;
     }
 
     public RoleEntity(Long id, String name) {
@@ -70,6 +81,20 @@ public class RoleEntity implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return the system
+     */
+    public boolean isSystem() {
+        return system;
+    }
+
+    /**
+     * @param system the system to set
+     */
+    public void setSystem(boolean system) {
+        this.system = system;
     }
 
     /**
