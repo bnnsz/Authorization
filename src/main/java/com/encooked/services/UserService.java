@@ -7,12 +7,13 @@ package com.encooked.services;
 
 import com.encooked.components.MessageComponent;
 import com.encooked.dto.UserDto;
-import com.encooked.entities.GrantedPriviledgeEntity;
 import com.encooked.entities.RoleEntity;
 import com.encooked.entities.TokenEntity;
 import com.encooked.entities.UserEntity;
-import com.encooked.repositories.GrantedPriviledgeEntityRepository;
-import com.encooked.repositories.PriviledgeEntityRepository;
+import com.encooked.enums.Error;
+import com.encooked.exceptions.ServiceException;
+import com.encooked.repositories.GrantedPrivilegeEntityRepository;
+import com.encooked.repositories.PrivilegeEntityRepository;
 import com.encooked.repositories.RoleEntityRepository;
 import com.encooked.repositories.TokenEntityRepository;
 import com.encooked.repositories.UserEntityRepository;
@@ -46,10 +47,10 @@ public class UserService {
     RoleEntityRepository roleEntityRepository;
 
     @Autowired
-    PriviledgeEntityRepository priviledgeEntityRepository;
+    PrivilegeEntityRepository privilegeEntityRepository;
 
     @Autowired
-    GrantedPriviledgeEntityRepository grantedPriviledgeEntityRepository;
+    GrantedPrivilegeEntityRepository grantedPrivilegeEntityRepository;
 
     @Autowired
     private MessageComponent messageComponent;
@@ -58,7 +59,7 @@ public class UserService {
         UserEntity user = userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         if (user.isEnabled()) {
-            throw new Exception("Account is already active");
+            throw new ServiceException(Error.account_active);
         }
         user.setEnabled(true);
         user.setCredentialsNonExpired(true);
@@ -68,19 +69,19 @@ public class UserService {
     
     public UserDetails activateUserByToken(String value) throws Exception, UsernameNotFoundException {
         TokenEntity token = tokenEntityRepository.findByValue(value)
-                .orElseThrow(() -> new Exception("Invalid token"));
+                .orElseThrow(() -> new ServiceException(Error.token_invalid));
         if(token.isExpired()){
-            throw new Exception("Token is expired");
+            throw new ServiceException(Error.token_expired);
         }
         
         if(token.getUser() == null){
-            throw new Exception("Invalid token");
+            throw new ServiceException(Error.token_invalid);
         }
         
         UserEntity user = token.getUser();
         
         if (user.isEnabled()) {
-            throw new Exception("Account is already active");
+            throw new ServiceException(Error.account_active);
         }
         user.setEnabled(true);
         user.setCredentialsNonExpired(true);
@@ -91,14 +92,14 @@ public class UserService {
         return user;
     }
 
-    public UserDetails getUser(String username) {
+    public UserDetails getUser(String username) throws ServiceException {
         return userEntityRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+                .orElseThrow(() -> new ServiceException(Error.user_not_exist));
     }
 
-    public Map<String, String> getUserProfile(String username) {
+    public Map<String, String> getUserProfile(String username) throws ServiceException {
         UserEntity user = userEntityRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+                .orElseThrow(() -> new ServiceException(Error.user_not_exist));
         return user.getPrinciples();
     }
 
@@ -109,7 +110,7 @@ public class UserService {
             String lastname,
             String email,
             String phone,
-            List<String> roles) {
+            List<String> roles) throws ServiceException {
         UserEntity user = createUser(username, password, firstname, lastname, email, phone, roles);
         if (user != null) {
             int length = 10;
@@ -130,7 +131,7 @@ public class UserService {
             String lastname,
             String email,
             String phone,
-            List<String> roles) {
+            List<String> roles) throws ServiceException {
         UserEntity user = new UserEntity();
         user.setUsername(username);
         user.setPassword(password);
@@ -149,7 +150,7 @@ public class UserService {
         user.setPrinciples(principles);
 
         if (userEntityRepository.findByUsername(username).isPresent()) {
-            throw new BadCredentialsException("User already exist");
+            throw new ServiceException(Error.user_exist);
         };
 
         userEntityRepository.save(user);
@@ -165,20 +166,20 @@ public class UserService {
         return user;
     }
 
-    public boolean deactivateUser(String username) throws Exception {
+    public boolean deactivateUser(String username) throws ServiceException {
         UserEntity user = userEntityRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+                .orElseThrow(() -> new ServiceException(Error.user_not_exist));
         if (user.isSystem()) {
-            throw new Exception("You cannot deactivate a system user");
+            throw new ServiceException(Error.cannot_deactivate_sys_user);
         }
         user.setEnabled(false);
         userEntityRepository.save(user);
         return true;
     }
 
-    public String changeUserPassword(String username, String newPassword) {
+    public String changeUserPassword(String username, String newPassword) throws ServiceException {
         UserEntity user = userEntityRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+                .orElseThrow(() -> new ServiceException(Error.user_not_exist));
         user.setPassword(newPassword);
         userEntityRepository.save(user);
         return user.getPassword();
@@ -196,8 +197,8 @@ public class UserService {
         return new ArrayList<>();
     }
 
-    public List<UserEntity> getAllUsersByPriviledge(String priviledge) {
-        return grantedPriviledgeEntityRepository.findByValue(priviledge)
+    public List<UserEntity> getAllUsersByPrivilege(String privilege) {
+        return grantedPrivilegeEntityRepository.findByValue(privilege)
                 .stream()
                 .map(p -> p.getRole())
                 .map(r -> r.getUsers())
@@ -205,9 +206,9 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserEntity updateUserProfile(String username, Map<String, String> principles) throws UsernameNotFoundException {
+    public UserEntity updateUserProfile(String username, Map<String, String> principles) throws ServiceException {
         UserEntity user = userEntityRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+                .orElseThrow(() -> new ServiceException(Error.user_not_exist));
 
         principles.keySet().forEach(key -> {
             user.getPrinciples().put(key.toLowerCase(), principles.get(key));
@@ -216,9 +217,9 @@ public class UserService {
         return userEntityRepository.save(user);
     }
 
-    public boolean changePassword(String username, String oldPassword, String newPassword) throws UsernameNotFoundException {
+    public boolean changePassword(String username, String oldPassword, String newPassword) throws ServiceException {
         UserEntity user = userEntityRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+                .orElseThrow(() -> new ServiceException(Error.user_not_exist));
         if (user.getPassword().equals(oldPassword)) {
             user.setPassword(newPassword);
         }

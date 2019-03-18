@@ -18,7 +18,7 @@ import javax.persistence.ManyToOne;
  * @author obinna.asuzu
  */
 @Entity
-public class GrantedPriviledgeEntity extends AbstractEntity implements Serializable {
+public class GrantedPrivilegeEntity extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -37,19 +37,19 @@ public class GrantedPriviledgeEntity extends AbstractEntity implements Serializa
     @ManyToOne
     private RoleEntity role;
 
-    public GrantedPriviledgeEntity() {
+    public GrantedPrivilegeEntity() {
     }
 
-    public GrantedPriviledgeEntity(String value) {
+    public GrantedPrivilegeEntity(String value) {
         this.value = value;
     }
     
-    public GrantedPriviledgeEntity(String value, boolean system) {
+    public GrantedPrivilegeEntity(String value, boolean system) {
         this.value = value;
         this.system = system;
     }
     
-    public GrantedPriviledgeEntity(String value,boolean read, boolean write) {
+    public GrantedPrivilegeEntity(String value,boolean read, boolean write) {
         this(value);
         this.read = read;
         this.write = write;
@@ -157,7 +157,7 @@ public class GrantedPriviledgeEntity extends AbstractEntity implements Serializa
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final GrantedPriviledgeEntity other = (GrantedPriviledgeEntity) obj;
+        final GrantedPrivilegeEntity other = (GrantedPrivilegeEntity) obj;
         
         
         if ((this.getId() == null || other.getId() == null)) {
@@ -168,7 +168,7 @@ public class GrantedPriviledgeEntity extends AbstractEntity implements Serializa
 
     @Override
     public String toString() {
-        return "com.encooked.data.entities.GrantedPriviledgeEntity[ id=" + getId() + " ]";
+        return "com.encooked.data.entities.GrantedPrivilegeEntity[ id=" + getId() + " ]";
     }
 
 }

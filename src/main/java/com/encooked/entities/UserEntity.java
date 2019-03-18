@@ -149,7 +149,7 @@ public class UserEntity extends AbstractEntity implements Serializable, UserDeta
 
     private void addToAuthority(RoleEntity role) {
         authorities.add(() -> "ROLE_" + role.getName());
-        role.getPriviledges().forEach(priv -> {
+        role.getPrivileges().forEach(priv -> {
             if (priv.isWrite()) {
                 authorities.add(() -> role.getName() + "." + priv.getValue() + "_WRITE");
             }

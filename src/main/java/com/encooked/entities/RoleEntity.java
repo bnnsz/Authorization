@@ -38,7 +38,7 @@ public class RoleEntity extends AbstractEntity implements Serializable {
     private boolean system;
 
     @OneToMany(mappedBy = "role", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<GrantedPriviledgeEntity> priviledges = new HashSet<>();
+    private Set<GrantedPrivilegeEntity> privileges = new HashSet<>();
 
     @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
     private Set<UserEntity> users = new HashSet<>();
@@ -98,17 +98,17 @@ public class RoleEntity extends AbstractEntity implements Serializable {
     }
 
     /**
-     * @return the priviledges
+     * @return the privileges
      */
-    public Set<GrantedPriviledgeEntity> getPriviledges() {
-        return priviledges;
+    public Set<GrantedPrivilegeEntity> getPrivileges() {
+        return privileges;
     }
 
     /**
-     * @param priviledges the priviledges to set
+     * @param privileges the privileges to set
      */
-    public void setPriviledges(Set<GrantedPriviledgeEntity> priviledges) {
-        this.priviledges = priviledges;
+    public void setPrivileges(Set<GrantedPrivilegeEntity> privileges) {
+        this.privileges = privileges;
     }
 
     /**

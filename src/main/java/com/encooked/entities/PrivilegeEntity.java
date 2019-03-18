@@ -17,7 +17,7 @@ import javax.persistence.Id;
  * @author obinna.asuzu
  */
 @Entity
-public class PriviledgeEntity extends AbstractEntity implements Serializable {
+public class PrivilegeEntity extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -30,14 +30,14 @@ public class PriviledgeEntity extends AbstractEntity implements Serializable {
     @Column
     private boolean system;
 
-    public PriviledgeEntity() {
+    public PrivilegeEntity() {
     }
 
-    public PriviledgeEntity(String value) {
+    public PrivilegeEntity(String value) {
         this.value = value;
     }
 
-    public PriviledgeEntity(String value, boolean system) {
+    public PrivilegeEntity(String value, boolean system) {
         this.value = value;
         this.system = system;
     }
@@ -88,10 +88,10 @@ public class PriviledgeEntity extends AbstractEntity implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof GrantedPriviledgeEntity)) {
+        if (!(object instanceof GrantedPrivilegeEntity)) {
             return false;
         }
-        PriviledgeEntity other = (PriviledgeEntity) object;
+        PrivilegeEntity other = (PrivilegeEntity) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -100,6 +100,6 @@ public class PriviledgeEntity extends AbstractEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "com.encooked.data.entities.PriviledgeEntity[ id=" + id + " ]";
+        return "com.encooked.data.entities.PrivilegeEntity[ id=" + id + " ]";
     }
 }

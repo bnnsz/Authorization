@@ -5,6 +5,7 @@
  */
 package com.encooked.dto;
 
+import com.encooked.exceptions.ServiceException;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.text.SimpleDateFormat;
@@ -20,6 +21,8 @@ public class ErrorResponse {
     private String date;
     @ApiModelProperty(value = "Message indicating the cause of the error")
     private String message;
+    @ApiModelProperty(value = "Code for identifying the cause of the error")
+    private int code;
 
     public ErrorResponse(String message) {
         this.date = new SimpleDateFormat("dd MMMM yyyy hh:mm:ss a").format(new Date());
@@ -29,7 +32,12 @@ public class ErrorResponse {
     public ErrorResponse(Throwable ex) {
         this.date = new SimpleDateFormat("dd MMMM yyyy hh:mm:ss a").format(new Date());
         this.message = ex.getMessage();
-
+    }
+    
+    public ErrorResponse(ServiceException ex) {
+        this.date = new SimpleDateFormat("dd MMMM yyyy hh:mm:ss a").format(new Date());
+        this.message = ex.getError().getMessage();
+        this.code = ex.getError().getCode();
     }
 
     /**
@@ -58,6 +66,20 @@ public class ErrorResponse {
      */
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    /**
+     * @return the code
+     */
+    public int getCode() {
+        return code;
+    }
+
+    /**
+     * @param code the code to set
+     */
+    public void setCode(int code) {
+        this.code = code;
     }
 
 }

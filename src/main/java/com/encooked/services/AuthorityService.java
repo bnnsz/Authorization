@@ -5,13 +5,15 @@
  */
 package com.encooked.services;
 
-import com.encooked.entities.GrantedPriviledgeEntity;
-import com.encooked.entities.PriviledgeEntity;
+import com.encooked.entities.GrantedPrivilegeEntity;
+import com.encooked.entities.PrivilegeEntity;
 import com.encooked.entities.RoleEntity;
+import com.encooked.enums.Error;
 import com.encooked.exceptions.RecordExistsException;
 import com.encooked.exceptions.RecordNotFoundException;
-import com.encooked.repositories.GrantedPriviledgeEntityRepository;
-import com.encooked.repositories.PriviledgeEntityRepository;
+import com.encooked.exceptions.ServiceException;
+import com.encooked.repositories.GrantedPrivilegeEntityRepository;
+import com.encooked.repositories.PrivilegeEntityRepository;
 import com.encooked.repositories.RoleEntityRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +37,10 @@ public class AuthorityService {
     RoleEntityRepository roleEntityRepository;
 
     @Autowired
-    PriviledgeEntityRepository priviledgeEntityRepository;
+    PrivilegeEntityRepository privilegeEntityRepository;
 
     @Autowired
-    GrantedPriviledgeEntityRepository grantedPriviledgeEntityRepository;
+    GrantedPrivilegeEntityRepository grantedPrivilegeEntityRepository;
 
     public List<String> getAllRoles(boolean indicateSystem) {
         return roleEntityRepository.findAll()
@@ -50,22 +52,22 @@ public class AuthorityService {
         return getAllRoles(false);
     }
 
-    public List<String> getAllRolesByPriviledge(String value, boolean indicateSystem) throws RecordNotFoundException {
-        return grantedPriviledgeEntityRepository.findByValue(value)
+    public List<String> getAllRolesByPrivilege(String value, boolean indicateSystem) throws ServiceException {
+        return grantedPrivilegeEntityRepository.findByValue(value)
                 .stream()
                 .map(p -> p.getRole().getName() + (indicateSystem ? p.getRole().isSystem() ? "*" : "" : ""))
                 .distinct()
                 .collect(Collectors.toList());
     }
 
-    public List<String> getAllRolesByPriviledge(String value) throws RecordNotFoundException {
-        return getAllRolesByPriviledge(value, false);
+    public List<String> getAllRolesByPrivilege(String value) throws ServiceException {
+        return getAllRolesByPrivilege(value, false);
     }
 
     public List<String> getAllAuthorities() {
         List<String> grantedAuthorities = new ArrayList<>();
         roleEntityRepository.findAll().forEach(role -> {
-            role.getPriviledges().forEach(priv -> {
+            role.getPrivileges().forEach(priv -> {
                 String a = role.getName() + "." + priv.getValue();
                 if (priv.isRead()) {
                     grantedAuthorities.add(a.toUpperCase() + "_READ");
@@ -80,7 +82,7 @@ public class AuthorityService {
     }
 
     public List<String> getAllPermission(boolean indicateSystem) {
-        return priviledgeEntityRepository.findAll()
+        return privilegeEntityRepository.findAll()
                 .stream().map(p -> p.getValue() + (indicateSystem ? p.isSystem() ? "*" : "" : ""))
                 .collect(Collectors.toList());
     }
@@ -89,43 +91,43 @@ public class AuthorityService {
         return getAllPermission(false);
     }
 
-    public List<String> getAllPermissionsByRole(String role, boolean indicateSystem) throws RecordNotFoundException {
+    public List<String> getAllPermissionsByRole(String role, boolean indicateSystem) throws ServiceException {
         return roleEntityRepository.findByName(role)
-                .orElseThrow(() -> new RecordNotFoundException("Role " + role + " does not exist"))
-                .getPriviledges().stream().map(p -> p.getValue() + (indicateSystem ? p.isSystem() ? "*" : "" : ""))
+                .orElseThrow(() -> new ServiceException(Error.role_not_exist))
+                .getPrivileges().stream().map(p -> p.getValue() + (indicateSystem ? p.isSystem() ? "*" : "" : ""))
                 .collect(Collectors.toList());
     }
 
-    public List<String> getAllPermissionsByRole(String role) throws RecordNotFoundException {
+    public List<String> getAllPermissionsByRole(String role) throws ServiceException {
         return getAllPermissionsByRole(role, false);
     }
 
     public RoleEntity createRole(String name) throws Exception {
         if (roleEntityRepository.findByName(name).isPresent()) {
-            throw new Exception(String.format("Role '%s\' already exist", name));
+            throw new ServiceException(Error.role_exist);
         }
         RoleEntity role = new RoleEntity();
         role.setName(name);
         return roleEntityRepository.save(role);
     }
 
-    private void validateAuthority(String value) throws Exception {
+    private void validateAuthority(String value) throws ServiceException {
         value = value.trim();
         if (value.split("\\.").length != 2) {
-            throw new Exception("Invalid Authority.Valid format: ROLE.PERMISSION_ACCESS Example: \"ADMIN.USER_READ\"");
+            throw new ServiceException(Error.invalid_grant_format);
         }
 
         if (value.split("_").length != 2) {
-            throw new Exception("Invalid Authority.Valid format: ROLE.PERMISSION_ACCESS Example: \"ADMIN.USER_READ\"");
+            throw new ServiceException(Error.invalid_grant_format);
         }
 
         Pattern p = Pattern.compile("^[a-zA-Z0-9._-]*$", Pattern.CASE_INSENSITIVE);
         if (!p.matcher(value).matches()) {
-            throw new Exception("Invalid Authority: Allowed characters; a to z, A to Z, 0 to 9,\"_\" \"_\" and \"-\"  Examples: \"ADMIN.USER_READ\", \"ADMIN.WEB-SOCKET_READ\"");
+            throw new ServiceException(Error.invalid_grant_characters);
         }
 
         if (!value.endsWith("_READ") && !value.endsWith("_WRITE")) {
-            throw new Exception("Invalid Authority: Must end with \"_READ\" or \"_WRITE\"  Examples: \"ADMIN.USER_READ\", \"ADMIN.WEB-SOCKET_WRITE\"");
+            throw new ServiceException(Error.invalid_grant_access);
         }
     }
 
@@ -136,31 +138,31 @@ public class AuthorityService {
         String[] split = authority.getAuthority().split("\\.");
 
         String role = split[0];
-        String priviledge_access = split[1];
+        String privilege_access = split[1];
 
-        split = priviledge_access.split("_");
+        split = privilege_access.split("_");
 
-        String priviledge = split[0];
+        String privilege = split[0];
         String access = split[1];
 
         RoleEntity roleEntity = roleEntityRepository.findByName(role)
-                .orElseThrow(() -> new RecordNotFoundException(String.format("Role \"%s\" does not exist", role)));
+                .orElseThrow(() -> new ServiceException(Error.role_not_exist));
 
-        priviledgeEntityRepository.findByValue(priviledge)
-                .orElseThrow(() -> new RecordNotFoundException((String.format("Priviledge \"%s\" does not exist", priviledge))));
+        privilegeEntityRepository.findByValue(privilege)
+                .orElseThrow(() -> new ServiceException(Error.privilege_not_exist));
 
-        GrantedPriviledgeEntity grantedPriviledgeEntity = grantedPriviledgeEntityRepository.findByValue(priviledge)
+        GrantedPrivilegeEntity grantedPrivilegeEntity = grantedPrivilegeEntityRepository.findByValue(privilege)
                 .stream()
                 .filter(p -> p.getRole().getName().equals(role))
                 .findFirst().orElseGet(() -> {
-                    return grantedPriviledgeEntityRepository.save(new GrantedPriviledgeEntity(priviledge));
+                    return grantedPrivilegeEntityRepository.save(new GrantedPrivilegeEntity(privilege));
                 });
 
-        grantedPriviledgeEntity.setRead(access.equals("READ") ? grant : grantedPriviledgeEntity.isRead());
-        grantedPriviledgeEntity.setWrite(access.equals("WRITE") ? grant : grantedPriviledgeEntity.isWrite());
+        grantedPrivilegeEntity.setRead(access.equals("READ") ? grant : grantedPrivilegeEntity.isRead());
+        grantedPrivilegeEntity.setWrite(access.equals("WRITE") ? grant : grantedPrivilegeEntity.isWrite());
 
-        grantedPriviledgeEntity.setRole(roleEntity);
-        roleEntity.getPriviledges().add(grantedPriviledgeEntity);
+        grantedPrivilegeEntity.setRole(roleEntity);
+        roleEntity.getPrivileges().add(grantedPrivilegeEntity);
         roleEntityRepository.save(roleEntity);
 
         return authority;
@@ -176,34 +178,34 @@ public class AuthorityService {
 
     public int deleteRole(String name) throws Exception {
         if (!userService.getAllUsersByRole(name).isEmpty()) {
-            throw new Exception("You cannot delete roles that are already in use");
+            throw new ServiceException(Error.cannot_del_roles_inuse);
         }
-        RoleEntity role = roleEntityRepository.findByName(name).orElseThrow(() -> new Exception("Role does not exist"));
+        RoleEntity role = roleEntityRepository.findByName(name).orElseThrow(() -> new ServiceException(Error.role_not_exist));
         if (role.isSystem()) {
-            throw new Exception("You cannot delete a system role");
+            throw new ServiceException(Error.cannot_delete_sys_role);
         }
         return roleEntityRepository.deleteByName(name).size();
     }
 
-    public int deletePriviledge(String value) throws Exception {
-        if (!getAllRolesByPriviledge(value).isEmpty()) {
-            throw new Exception("You cannot delete priviledges that are already in use");
+    public int deletePrivilege(String value) throws Exception {
+        if (!getAllRolesByPrivilege(value).isEmpty()) {
+            throw new ServiceException(Error.cannot_del_privileges_inuse);
         }
-        PriviledgeEntity priviledge = priviledgeEntityRepository.findByValue(value).orElseThrow(() -> new Exception("Priviledge does not exist"));
-        if (priviledge.isSystem()) {
-            throw new Exception("You cannot delete a system priviledge");
+        PrivilegeEntity privilege = privilegeEntityRepository.findByValue(value).orElseThrow(() -> new ServiceException(Error.privilege_not_exist));
+        if (privilege.isSystem()) {
+            throw new ServiceException(Error.cannot_delete_sys_privileges);
         }
-        return priviledgeEntityRepository.deleteByValue(value).size();
+        return privilegeEntityRepository.deleteByValue(value).size();
     }
 
-    public PriviledgeEntity createPriviledge(String value) throws Exception {
-        if (priviledgeEntityRepository.findByValue(value).isPresent()) {
-            throw new Exception(String.format("Priviledge '%s\' already exist", value));
+    public PrivilegeEntity createPrivilege(String value) throws Exception {
+        if (privilegeEntityRepository.findByValue(value).isPresent()) {
+            throw new ServiceException(Error.privilege_exist);
         }
 
-        PriviledgeEntity priviledgeEntity = new PriviledgeEntity();
-        priviledgeEntity.setValue(value);
-        return priviledgeEntityRepository.save(priviledgeEntity);
+        PrivilegeEntity privilegeEntity = new PrivilegeEntity();
+        privilegeEntity.setValue(value);
+        return privilegeEntityRepository.save(privilegeEntity);
     }
 
 }

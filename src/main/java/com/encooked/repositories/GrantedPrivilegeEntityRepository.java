@@ -5,7 +5,7 @@
  */
 package com.encooked.repositories;
 
-import com.encooked.entities.GrantedPriviledgeEntity;
+import com.encooked.entities.GrantedPrivilegeEntity;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,6 +13,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  * @author obinna.asuzu
  */
-public interface GrantedPriviledgeEntityRepository extends JpaRepository<GrantedPriviledgeEntity, Long> {
-    public List<GrantedPriviledgeEntity> findByValue(String value);
+public interface GrantedPrivilegeEntityRepository extends JpaRepository<GrantedPrivilegeEntity, Long> {
+    public List<GrantedPrivilegeEntity> findByValue(String value);
 }

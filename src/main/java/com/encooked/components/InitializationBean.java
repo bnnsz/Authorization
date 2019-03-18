@@ -5,12 +5,12 @@
  */
 package com.encooked.components;
 
-import com.encooked.entities.GrantedPriviledgeEntity;
-import com.encooked.entities.PriviledgeEntity;
+import com.encooked.entities.GrantedPrivilegeEntity;
+import com.encooked.entities.PrivilegeEntity;
 import com.encooked.entities.RoleEntity;
 import com.encooked.entities.UserEntity;
-import com.encooked.repositories.GrantedPriviledgeEntityRepository;
-import com.encooked.repositories.PriviledgeEntityRepository;
+import com.encooked.repositories.GrantedPrivilegeEntityRepository;
+import com.encooked.repositories.PrivilegeEntityRepository;
 import com.encooked.repositories.RoleEntityRepository;
 import com.encooked.repositories.UserEntityRepository;
 import java.util.ArrayList;
@@ -33,9 +33,9 @@ public class InitializationBean {
     @Autowired
     UserEntityRepository userEntityRepository;
     @Autowired
-    PriviledgeEntityRepository priviledgeEntityRepository;
+    PrivilegeEntityRepository privilegeEntityRepository;
     @Autowired
-    GrantedPriviledgeEntityRepository grantedPriviledgeEntityRepository;
+    GrantedPrivilegeEntityRepository grantedPrivilegeEntityRepository;
     @Autowired
     RoleEntityRepository roleEntityRepository;
     
@@ -43,7 +43,7 @@ public class InitializationBean {
     public void init(){
         try {
             initRoles();
-            initPriviledges();
+            initPrivileges();
             initGrants();
             initUsers();
         } catch (Exception ex) {
@@ -58,10 +58,10 @@ public class InitializationBean {
         }
     }
 
-    public void initPriviledges() {
-        if (priviledgeEntityRepository.count() == 0) {
+    public void initPrivileges() {
+        if (privilegeEntityRepository.count() == 0) {
             Arrays.asList("USER", "EMAIL", "SMS", "SWAGGER", "ACTUATOR", "LOG")
-                    .forEach((priv) -> priviledgeEntityRepository.save(new PriviledgeEntity(priv,true)));
+                    .forEach((priv) -> privilegeEntityRepository.save(new PrivilegeEntity(priv,true)));
         }
     }
 
@@ -69,19 +69,19 @@ public class InitializationBean {
         for (String role : Arrays.asList("ADMIN", "VENDOR", "CLIENT", "SUPPLIER")) {
             Optional<RoleEntity> option = roleEntityRepository.findByName(role);
             RoleEntity roleEntity = option.orElseThrow(() -> new Exception());
-            List<String> priviledges = new ArrayList<>();
+            List<String> privileges = new ArrayList<>();
             switch (role) {
                 case "ADMIN":
-                    priviledges.addAll(Arrays.asList("SWAGGER", "ACTUATOR", "LOG"));
+                    privileges.addAll(Arrays.asList("SWAGGER", "ACTUATOR", "LOG"));
                     break;
             }
-            priviledges.addAll(Arrays.asList("USER", "EMAIL", "SMS"));
+            privileges.addAll(Arrays.asList("USER", "EMAIL", "SMS"));
 
-            for (String priviledge : priviledges) {
-                GrantedPriviledgeEntity gpe = new GrantedPriviledgeEntity(priviledge, true, true);
-                gpe = grantedPriviledgeEntityRepository.save(gpe);
+            for (String privilege : privileges) {
+                GrantedPrivilegeEntity gpe = new GrantedPrivilegeEntity(privilege, true, true);
+                gpe = grantedPrivilegeEntityRepository.save(gpe);
                 gpe.setRole(roleEntity);
-                roleEntity.getPriviledges().add(gpe);
+                roleEntity.getPrivileges().add(gpe);
                 roleEntityRepository.save(roleEntity);
             }
 

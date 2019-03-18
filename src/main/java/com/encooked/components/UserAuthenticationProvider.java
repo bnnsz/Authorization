@@ -5,7 +5,10 @@
  */
 package com.encooked.components;
 
+import com.encooked.exceptions.ServiceException;
 import com.encooked.services.UserService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -39,7 +42,12 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
             return authentication;
         }
 
-        UserDetails user = userService.getUser(username);
+        UserDetails user = null;
+        try {
+            user = userService.getUser(username);
+        } catch (ServiceException ex) {
+            throw new AuthenticationCredentialsNotFoundException(ex.getMessage());
+        }
         if (user == null) {
             throw new AuthenticationCredentialsNotFoundException("Invalid username or password");
         }

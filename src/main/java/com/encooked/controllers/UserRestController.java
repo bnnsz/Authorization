@@ -10,6 +10,7 @@ import com.encooked.components.MessageComponent;
 import com.encooked.dto.UserDto;
 import com.encooked.entities.UserEntity;
 import com.encooked.dto.ErrorResponse;
+import com.encooked.exceptions.ServiceException;
 import com.encooked.services.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -71,7 +72,7 @@ public class UserRestController {
         @ApiResponse(code = 404, response = ErrorResponse.class, message = "User not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity get(@PathVariable String id) {
+    public ResponseEntity get(@PathVariable String id) throws ServiceException {
         return ResponseEntity.ok(new UserDto(userService.getUser(resolve(id))));
     }
 
@@ -81,7 +82,7 @@ public class UserRestController {
         @ApiResponse(code = 404, response = ErrorResponse.class, message = "NOT FOUND")
     })
     @GetMapping("/{id}/profile")
-    public ResponseEntity getProfile(@PathVariable String id) {
+    public ResponseEntity getProfile(@PathVariable String id) throws ServiceException {
         if (id.equalsIgnoreCase("me")) {
 
         }
@@ -94,7 +95,7 @@ public class UserRestController {
         @ApiResponse(code = 404, response = ErrorResponse.class, message = "NOT FOUND")
     })
     @PutMapping("/{id}/update")
-    public ResponseEntity put(@PathVariable String id, @RequestBody Map<String, String> principles) {
+    public ResponseEntity put(@PathVariable String id, @RequestBody Map<String, String> principles) throws ServiceException {
         UserEntity user = userService.updateUserProfile(resolve(id), principles);
         return ResponseEntity.accepted().body(new UserDto(user));
     }
@@ -108,7 +109,7 @@ public class UserRestController {
     public ResponseEntity changePassword(
             @PathVariable String id,
             @RequestBody String oldPassword,
-            @RequestBody String newPassword) {
+            @RequestBody String newPassword) throws ServiceException {
         boolean changed = userService.changePassword(resolve(id), oldPassword, newPassword);
         return ResponseEntity.accepted().body(changed);
     }
@@ -120,7 +121,7 @@ public class UserRestController {
         @ApiResponse(code = 500, response = ErrorResponse.class, message = "INTERNAL SERVER ERROR")
     })
     @PostMapping("/create")
-    public ResponseEntity post(@RequestBody UserDto user) {
+    public ResponseEntity post(@RequestBody UserDto user) throws ServiceException {
         String username = user.getUsername();
         String password = user.getPassword();
         String firstname = user.getPrinciples().get("firstname");

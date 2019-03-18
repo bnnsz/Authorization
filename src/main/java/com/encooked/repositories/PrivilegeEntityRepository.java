@@ -5,7 +5,7 @@
  */
 package com.encooked.repositories;
 
-import com.encooked.entities.PriviledgeEntity;
+import com.encooked.entities.PrivilegeEntity;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,9 +14,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  * @author obinna.asuzu
  */
-public interface PriviledgeEntityRepository extends JpaRepository<PriviledgeEntity, Long> {
-    public Optional<PriviledgeEntity> findByValue(String value);
+public interface PrivilegeEntityRepository extends JpaRepository<PrivilegeEntity, Long> {
+    public Optional<PrivilegeEntity> findByValue(String value);
 
-    public List<PriviledgeEntity> deleteByValue(String value);
+    public List<PrivilegeEntity> deleteByValue(String value);
     
 }

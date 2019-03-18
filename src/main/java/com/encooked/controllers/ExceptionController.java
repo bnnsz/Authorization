@@ -7,6 +7,7 @@ package com.encooked.controllers;
 
 import com.encooked.dto.ErrorResponse;
 import com.encooked.exceptions.RecordExistsException;
+import com.encooked.exceptions.ServiceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -44,5 +45,10 @@ public class ExceptionController {
     @ExceptionHandler({RecordExistsException.class})
     public ResponseEntity<?> handleRecordExistException(Throwable ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(ex));
+    }
+    
+    @ExceptionHandler({ServiceException.class})
+    public ResponseEntity<?> handleServiceException(Throwable ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ex));
     }
 }

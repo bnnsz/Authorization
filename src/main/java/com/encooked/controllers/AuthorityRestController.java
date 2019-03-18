@@ -52,7 +52,7 @@ public class AuthorityRestController {
                 authorityService.createAuthority(() -> value);
                 return ResponseEntity.accepted().body(true);
             case PRIVILEDGE:
-                authorityService.createPriviledge(value);
+                authorityService.createPrivilege(value);
                 return ResponseEntity.accepted().body(true);
             case ROLE:
                 authorityService.createRole(value);
@@ -97,7 +97,7 @@ public class AuthorityRestController {
                 authorityService.removeAuthority(() -> value);
                 return ResponseEntity.accepted().body(1);
             case PRIVILEDGE:
-                return ResponseEntity.accepted().body(authorityService.deletePriviledge(value));
+                return ResponseEntity.accepted().body(authorityService.deletePrivilege(value));
 
             case ROLE:
                 return ResponseEntity.accepted().body(authorityService.deleteRole(value));
