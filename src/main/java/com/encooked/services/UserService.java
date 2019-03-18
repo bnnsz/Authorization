@@ -5,12 +5,16 @@
  */
 package com.encooked.services;
 
+import com.encooked.components.MessageComponent;
+import com.encooked.dto.UserDto;
 import com.encooked.entities.GrantedPriviledgeEntity;
 import com.encooked.entities.RoleEntity;
+import com.encooked.entities.TokenEntity;
 import com.encooked.entities.UserEntity;
 import com.encooked.repositories.GrantedPriviledgeEntityRepository;
 import com.encooked.repositories.PriviledgeEntityRepository;
 import com.encooked.repositories.RoleEntityRepository;
+import com.encooked.repositories.TokenEntityRepository;
 import com.encooked.repositories.UserEntityRepository;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,6 +40,9 @@ public class UserService {
     UserEntityRepository userEntityRepository;
 
     @Autowired
+    TokenEntityRepository tokenEntityRepository;
+
+    @Autowired
     RoleEntityRepository roleEntityRepository;
 
     @Autowired
@@ -42,13 +50,14 @@ public class UserService {
 
     @Autowired
     GrantedPriviledgeEntityRepository grantedPriviledgeEntityRepository;
-    
-    
-    
+
+    @Autowired
+    private MessageComponent messageComponent;
+
     public UserDetails activateUser(String username) throws Exception, UsernameNotFoundException {
         UserEntity user = userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
-        if(user.isEnabled()){
+        if (user.isEnabled()) {
             throw new Exception("Account is already active");
         }
         user.setEnabled(true);
@@ -57,6 +66,31 @@ public class UserService {
         return user;
     }
     
+    public UserDetails activateUserByToken(String value) throws Exception, UsernameNotFoundException {
+        TokenEntity token = tokenEntityRepository.findByValue(value)
+                .orElseThrow(() -> new Exception("Invalid token"));
+        if(token.isExpired()){
+            throw new Exception("Token is expired");
+        }
+        
+        if(token.getUser() == null){
+            throw new Exception("Invalid token");
+        }
+        
+        UserEntity user = token.getUser();
+        
+        if (user.isEnabled()) {
+            throw new Exception("Account is already active");
+        }
+        user.setEnabled(true);
+        user.setCredentialsNonExpired(true);
+        token.setExpired(true);
+        
+        userEntityRepository.save(user);
+        tokenEntityRepository.save(token);
+        return user;
+    }
+
     public UserDetails getUser(String username) {
         return userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
@@ -66,6 +100,27 @@ public class UserService {
         UserEntity user = userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         return user.getPrinciples();
+    }
+
+    public UserEntity registerUser(
+            String username,
+            String password,
+            String firstname,
+            String lastname,
+            String email,
+            String phone,
+            List<String> roles) {
+        UserEntity user = createUser(username, password, firstname, lastname, email, phone, roles);
+        if (user != null) {
+            int length = 10;
+            boolean useLetters = true;
+            boolean useNumbers = false;
+            String generatedString = RandomStringUtils.random(length, useLetters, useNumbers);
+            TokenEntity token = new TokenEntity(generatedString, user);
+            token = tokenEntityRepository.save(token);
+            messageComponent.sendAcivationEmail(new UserDto(user), generatedString);
+        }
+        return user;
     }
 
     public UserEntity createUser(
@@ -93,14 +148,14 @@ public class UserService {
 
         user.setPrinciples(principles);
 
-        userEntityRepository.findByUsername(username)
-                .orElseThrow(() -> new BadCredentialsException("User already exist"));
-        
-        
+        if (userEntityRepository.findByUsername(username).isPresent()) {
+            throw new BadCredentialsException("User already exist");
+        };
+
         userEntityRepository.save(user);
         roles.forEach(roleName -> {
             Optional<RoleEntity> role = roleEntityRepository.findByName(roleName);
-            if(role.isPresent()){
+            if (role.isPresent()) {
                 RoleEntity r = role.get();
                 r.getUsers().add(user);
                 user.getRoles().add(r);
@@ -113,7 +168,7 @@ public class UserService {
     public boolean deactivateUser(String username) throws Exception {
         UserEntity user = userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
-        if(user.isSystem()){
+        if (user.isSystem()) {
             throw new Exception("You cannot deactivate a system user");
         }
         user.setEnabled(false);
@@ -146,11 +201,11 @@ public class UserService {
                 .stream()
                 .map(p -> p.getRole())
                 .map(r -> r.getUsers())
-                    .flatMap(r -> r.stream())
-                    .collect(Collectors.toList());
+                .flatMap(r -> r.stream())
+                .collect(Collectors.toList());
     }
 
-     public UserEntity updateUserProfile(String username, Map<String, String> principles) throws UsernameNotFoundException {
+    public UserEntity updateUserProfile(String username, Map<String, String> principles) throws UsernameNotFoundException {
         UserEntity user = userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
 

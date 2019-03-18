@@ -11,13 +11,11 @@ import com.encooked.dto.UserDto;
 import com.encooked.entities.UserEntity;
 import com.encooked.dto.ErrorResponse;
 import com.encooked.services.UserService;
-import freemarker.template.TemplateException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
-import java.io.IOException;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
@@ -74,7 +72,7 @@ public class UserRestController {
     })
     @GetMapping("/{id}")
     public ResponseEntity get(@PathVariable String id) {
-        return ResponseEntity.ok(userService.getUser(resolve(id)));
+        return ResponseEntity.ok(new UserDto(userService.getUser(resolve(id))));
     }
 
     @ApiOperation(value = "get user profile infomations by username or \"me\" as id for logged in user")
@@ -151,10 +149,7 @@ public class UserRestController {
         String phone = user.getPrinciples().get("phone");
         List<String> roles = user.getRoles();
 
-        UserEntity createdUser = userService.createUser(username, password, firstname, lastname, email, phone, roles);
-        if (createdUser != null) {
-            messageComponent.sendAcivationEmail(user, jwtTokenUtil.doGenerateToken(createdUser));
-        }
+        UserEntity createdUser = userService.registerUser(username, password, firstname, lastname, email, phone, roles);
         return ResponseEntity.accepted().body(new UserDto(createdUser));
     }
 

@@ -10,13 +10,10 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -46,10 +43,14 @@ public class UserDto implements Serializable {
     private boolean system;
     @ApiModelProperty(value = "User roles")
     private List<String> roles = new ArrayList<>();
+    
+    public UserDto(){
+        
+    }
 
     public UserDto(UserDetails other) {
         this.username = other.getUsername();
-        this.password = other.getPassword();
+//        this.password = other.getPassword();
         this.grantedAuthorities = other.getAuthorities().stream().map(g -> g.getAuthority()).collect(Collectors.toList());
         this.accountNonExpired = other.isAccountNonExpired();
         this.accountNonLocked = other.isAccountNonLocked();
@@ -61,7 +62,7 @@ public class UserDto implements Serializable {
 
     public UserDto(UserEntity other) {
         this.username = other.getUsername();
-        this.password = other.getPassword();
+//        this.password = other.getPassword();
         this.grantedAuthorities = other.getAuthorities().stream().map(g -> g.getAuthority()).collect(Collectors.toList());
         this.accountNonExpired = other.isAccountNonExpired();
         this.accountNonLocked = other.isAccountNonLocked();

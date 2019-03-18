@@ -12,6 +12,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.io.Serializable;
 import java.util.Date;
+import javax.annotation.PostConstruct;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,6 +33,7 @@ public class JwtTokenUtil implements Serializable {
     Base64 encoder;
     Gson gson;
     
+    @PostConstruct
     public void init(){
         encoder = new Base64();
         gson = new Gson();
@@ -39,7 +41,9 @@ public class JwtTokenUtil implements Serializable {
     
 
     public String doGenerateToken(UserDetails userDetails) {
-        String userData = encoder.encodeToString(gson.toJson(new UserDto(userDetails)).getBytes());
+        String user = gson.toJson(new UserDto(userDetails));
+        byte[] bytes = user.getBytes();
+        String userData = encoder.encodeToString(bytes);
         Claims claims = Jwts.claims().setSubject(userData);
         return Jwts.builder()
                 .setClaims(claims)

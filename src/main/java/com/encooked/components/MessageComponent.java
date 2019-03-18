@@ -5,21 +5,16 @@
  */
 package com.encooked.components;
 
-import com.encooked.config.FreemarkerConfig;
 import com.encooked.dto.Address;
-import com.encooked.dto.Email;
 import com.encooked.dto.UserDto;
-import com.encooked.enums.EmailType;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 /**
  *
@@ -29,25 +24,20 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 public class MessageComponent {
 
     @Autowired
-    FreemarkerConfig freemarkerConfig;
+    private EurekaClient discoveryClient;
 
-    public boolean sendAcivationEmail(UserDto user, String activationToken) throws IOException, TemplateException {
-        Template t = freemarkerConfig.getTemplate("activate_template.html");
+    public boolean sendAcivationEmail(UserDto user, String activationToken) {
 
-        Map model = new HashMap();
-        model.put("title", "Welcome " + user.getPrinciples().get("firstname"));
-        model.put("heading", "To Encooked");
-        model.put("message", "You are on step away from completing your registeration, click the button below to continue.");
-        model.put("activation.url", "http://app.encooked.com/activate?token=" + activationToken);
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("MESSAGING", false);
+        String messagingUrl = instance.getHomePageUrl();
 
-        String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost/messaging/send";
-        Email email = new Email();
-        email.getTo().add(new Address(user.getPrinciples().get("email")));
-        email.setSubject("Welcome to Encooked");
-        email.setContent(html, EmailType.HTML);
+        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
 
-        return restTemplate.postForObject(url, email, Boolean.class);
+        String firstname = user.getPrinciples().get("firstname");
+        String email = user.getPrinciples().get("email");
+        HttpEntity<Address> request = new HttpEntity<>(new Address(firstname, email));
+        String url = messagingUrl + "api/v1/email/send/activate/" + activationToken;
+        return restTemplate.postForObject(url, request, Boolean.class);
     }
 }
