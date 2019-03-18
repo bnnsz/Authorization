@@ -23,6 +23,8 @@ public class ErrorResponse {
     private String message;
     @ApiModelProperty(value = "Code for identifying the cause of the error")
     private int code;
+    @ApiModelProperty(value = "error")
+    private Error error;
 
     public ErrorResponse(String message) {
         this.date = new SimpleDateFormat("dd MMMM yyyy hh:mm:ss a").format(new Date());
@@ -80,6 +82,20 @@ public class ErrorResponse {
      */
     public void setCode(int code) {
         this.code = code;
+    }
+
+    /**
+     * @return the error
+     */
+    public Error getError() {
+        return error;
+    }
+
+    /**
+     * @param error the error to set
+     */
+    public void setError(Error error) {
+        this.error = error;
     }
 
 }
