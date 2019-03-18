@@ -48,7 +48,7 @@ public class ExceptionController {
     }
     
     @ExceptionHandler({ServiceException.class})
-    public ResponseEntity<?> handleServiceException(Throwable ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ex));
+    public ResponseEntity<?> handleServiceException(ServiceException ex) {
+        return ResponseEntity.status(ex.getError().getStatus()).body(new ErrorResponse(ex));
     }
 }

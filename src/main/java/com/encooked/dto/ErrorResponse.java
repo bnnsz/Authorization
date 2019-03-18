@@ -19,12 +19,10 @@ import com.encooked.enums.Error;
 public class ErrorResponse {
     @ApiModelProperty(value = "Date/time of error",example = "31 January 2001 10:30:54 am")
     private String date;
-    @ApiModelProperty(value = "Message indicating the cause of the error")
+    @ApiModelProperty(value = "Message describing the error")
     private String message;
     @ApiModelProperty(value = "Code for identifying the cause of the error")
     private int code;
-    @ApiModelProperty(value = "error")
-    private Error error;
 
     public ErrorResponse(String message) {
         this.date = new SimpleDateFormat("dd MMMM yyyy hh:mm:ss a").format(new Date());
@@ -84,18 +82,6 @@ public class ErrorResponse {
         this.code = code;
     }
 
-    /**
-     * @return the error
-     */
-    public Error getError() {
-        return error;
-    }
-
-    /**
-     * @param error the error to set
-     */
-    public void setError(Error error) {
-        this.error = error;
-    }
+    
 
 }
