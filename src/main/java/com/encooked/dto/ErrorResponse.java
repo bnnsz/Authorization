@@ -10,7 +10,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import com.encooked.enums.Error;
 /**
  *
  * @author obinna.asuzu
