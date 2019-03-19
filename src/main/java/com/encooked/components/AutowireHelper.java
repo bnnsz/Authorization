@@ -8,13 +8,13 @@ package com.encooked.components;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * Helper class which is able to autowire a specified class. It holds a static reference to the {@link org
  * .springframework.context.ApplicationContext}.
  */
-@Component
+@Service
 public final class AutowireHelper implements ApplicationContextAware {
 
     private static final AutowireHelper INSTANCE = new AutowireHelper();
