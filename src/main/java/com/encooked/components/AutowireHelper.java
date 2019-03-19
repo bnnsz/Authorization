@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
  * reference to the {@link org
  * .springframework.context.ApplicationContext}.
  */
-@Service
 public final class AutowireHelper implements ApplicationContextAware {
 
     private static final AutowireHelper INSTANCE = new AutowireHelper();
