@@ -40,7 +40,6 @@ public final class AutowireHelper implements ApplicationContextAware {
 
     @Override
     public void setApplicationContext(final ApplicationContext applicationContext) {
-        System.out.println("seting context=====================>"+applicationContext.getDisplayName()+ " ++++ "+applicationContext.getApplicationName());
         AutowireHelper.applicationContext = applicationContext;
     }
 

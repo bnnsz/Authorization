@@ -23,6 +23,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,7 +32,8 @@ import org.springframework.stereotype.Component;
  * @author obinna.asuzu
  */
 @Component
-public class InitializationBean {
+public class InitializationBean implements
+  ApplicationListener<ContextRefreshedEvent> {
 
     @Autowired
     UserEntityRepository userEntityRepository;
@@ -45,7 +48,6 @@ public class InitializationBean {
     @Autowired
     JwtTokenUtil jwtTokenUtil;
     
-    @PostConstruct
     public void init(){
         try {
             initRoles();
@@ -115,5 +117,10 @@ public class InitializationBean {
             token.setExpired(false);
             tokenEntityRepository.save(token);
         }
+    }
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent e) {
+        init();
     }
 }
