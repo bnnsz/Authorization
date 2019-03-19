@@ -5,18 +5,16 @@
  */
 package com.encooked.components;
 
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
- * Helper class which is able to autowire a specified class. It holds a static
- * reference to the {@link org
+ * Helper class which is able to autowire a specified class. It holds a static reference to the {@link org
  * .springframework.context.ApplicationContext}.
  */
-public final class AutowireHelper {
+@Component
+public final class AutowireHelper implements ApplicationContextAware {
 
     private static final AutowireHelper INSTANCE = new AutowireHelper();
     private static ApplicationContext applicationContext;
@@ -24,26 +22,12 @@ public final class AutowireHelper {
     private AutowireHelper() {
     }
 
-    public AutowireHelper autowireHelper() {
-        return AutowireHelper.getInstance();
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        applicationContext = applicationContext;
-    }
-
-    public static <T> T autowire(Class<T> beanClass) {
-        return applicationContext.getBean(beanClass);
-    }
-
     /**
-     * Tries to autowire the specified instance of the class if one of the
-     * specified beans which need to be autowired are null.
+     * Tries to autowire the specified instance of the class if one of the specified beans which need to be autowired
+     * are null.
      *
-     * @param classToAutowire the instance of the class which holds @Autowire
-     * annotations
-     * @param beansToAutowireInClass the beans which have the @Autowire
-     * annotation in the specified {#classToAutowire}
+     * @param classToAutowire the instance of the class which holds @Autowire annotations
+     * @param beansToAutowireInClass the beans which have the @Autowire annotation in the specified {#classToAutowire}
      */
     public static void autowire(Object classToAutowire, Object... beansToAutowireInClass) {
         for (Object bean : beansToAutowireInClass) {
@@ -52,6 +36,12 @@ public final class AutowireHelper {
                 return;
             }
         }
+    }
+
+    @Override
+    public void setApplicationContext(final ApplicationContext applicationContext) {
+        System.out.println("seting context=====================>"+applicationContext.getDisplayName()+ " ++++ "+applicationContext.getApplicationName());
+        AutowireHelper.applicationContext = applicationContext;
     }
 
     /**
