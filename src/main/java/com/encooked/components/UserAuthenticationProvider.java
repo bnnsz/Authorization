@@ -37,11 +37,10 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
-        
-        if(!authentication.getAuthorities().isEmpty() && authentication.isAuthenticated()){
+
+        if (!authentication.getAuthorities().isEmpty() && authentication.isAuthenticated()) {
             return authentication;
         }
-
         UserDetails user = null;
         try {
             user = userService.getUser(username);
@@ -60,10 +59,6 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
             throw new LockedException("Account has been locked");
         }
 
-        if (!user.isCredentialsNonExpired()) {
-            throw new CredentialsExpiredException("Credentials expired");
-        }
-
         if (!user.isEnabled()) {
             throw new DisabledException("Account has been disabled");
         }
@@ -73,14 +68,12 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         }
 
         return new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities());
-
+    
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
         return authentication.equals(UsernamePasswordAuthenticationToken.class);
     }
-    
-    
 
 }

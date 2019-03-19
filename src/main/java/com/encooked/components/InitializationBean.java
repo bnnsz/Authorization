@@ -8,10 +8,12 @@ package com.encooked.components;
 import com.encooked.entities.GrantedPrivilegeEntity;
 import com.encooked.entities.PrivilegeEntity;
 import com.encooked.entities.RoleEntity;
+import com.encooked.entities.TokenEntity;
 import com.encooked.entities.UserEntity;
 import com.encooked.repositories.GrantedPrivilegeEntityRepository;
 import com.encooked.repositories.PrivilegeEntityRepository;
 import com.encooked.repositories.RoleEntityRepository;
+import com.encooked.repositories.TokenEntityRepository;
 import com.encooked.repositories.UserEntityRepository;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +40,10 @@ public class InitializationBean {
     GrantedPrivilegeEntityRepository grantedPrivilegeEntityRepository;
     @Autowired
     RoleEntityRepository roleEntityRepository;
+    @Autowired
+    TokenEntityRepository tokenEntityRepository;
+    @Autowired
+    JwtTokenUtil jwtTokenUtil;
     
     @PostConstruct
     public void init(){
@@ -104,6 +110,10 @@ public class InitializationBean {
             user.getRoles().add(role);
             role.getUsers().add(user);
             userEntityRepository.save(user);
+            
+            TokenEntity token = new TokenEntity(jwtTokenUtil.doGenerateToken(user), user);
+            token.setExpired(false);
+            tokenEntityRepository.save(token);
         }
     }
 }

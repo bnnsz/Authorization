@@ -41,10 +41,8 @@ public class JwtTokenUtil implements Serializable {
     
 
     public String doGenerateToken(UserDetails userDetails) {
-        String user = gson.toJson(new UserDto(userDetails));
-        byte[] bytes = user.getBytes();
-        String userData = encoder.encodeToString(bytes);
-        Claims claims = Jwts.claims().setSubject(userData);
+        Claims claims = Jwts.claims().setSubject(userDetails.getUsername());
+        claims.put("credential", userDetails.getPassword());
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuer("http://encooked.com")
@@ -54,26 +52,33 @@ public class JwtTokenUtil implements Serializable {
                 .compact();
     }
     // Other methods
-
+    public String getUsername(String authToken) {
+        return Jwts.parser()
+                .setSigningKey(jwtKey)
+                .parseClaimsJws(authToken)
+                .getBody().getSubject();
+    }
+    
+    // Other methods
+    public String getPassword(String authToken) {
+        return Jwts.parser()
+                .setSigningKey(jwtKey)
+                .parseClaimsJws(authToken)
+                .getBody().getSubject();
+    }
+    
     public boolean validateToken(String authToken, UserDetails userDetails) {
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtKey)
                 .parseClaimsJws(authToken)
                 .getBody();
-        
-        if(claims == null || claims.isEmpty() || claims.getExpiration().before(new Date(System.currentTimeMillis()))){
+
+        if (claims == null || claims.isEmpty() || claims.getExpiration().before(new Date(System.currentTimeMillis()))) {
             return false;
         }
-        
-        UserDto user = gson.fromJson(new String(encoder.decode(claims.getSubject())), UserDto.class);
-        return user.validate(new UserDto(userDetails));
-    }
 
-    public String getUsernameFromToken(String authToken) {
-        return Jwts.parser()
-                .setSigningKey(jwtKey)
-                .parseClaimsJws(authToken)
-                .getBody().get("username", String.class);
+        String username = claims.getSubject();
+        return username.equals(userDetails.getUsername());
     }
     
     

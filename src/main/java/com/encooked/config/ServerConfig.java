@@ -5,6 +5,7 @@
  */
 package com.encooked.config;
 
+import com.encooked.components.RequestListener;
 import com.encooked.components.UserAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 /**
  *
@@ -26,6 +28,9 @@ public class ServerConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     UserAuthenticationProvider authenticationProvider;
+    
+    @Autowired
+    RequestListener requestListener;
 
     @Autowired
     protected void globalConfig(AuthenticationManagerBuilder auth) throws Exception {
@@ -34,7 +39,7 @@ public class ServerConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        http.addFilterBefore(requestListener, BasicAuthenticationFilter.class).authorizeRequests()
                 .antMatchers("/signup","/*").permitAll()
                 .anyRequest().permitAll()
                 .and()

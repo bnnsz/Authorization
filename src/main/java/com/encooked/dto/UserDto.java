@@ -22,7 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 @ApiModel(value = "User", description = "User infomation, credentials and principles")
 public class UserDto implements Serializable {
-
+    private static final long serialVersionUID = 1009L;
     @ApiModelProperty(value = "username of User")
     private String username;
     @ApiModelProperty(value = "password of User")
@@ -57,7 +57,8 @@ public class UserDto implements Serializable {
         this.credentialsNonExpired = other.isCredentialsNonExpired();
         this.enabled = other.isEnabled();
         this.roles  = this.grantedAuthorities.stream().filter(a -> a.startsWith("ROLE_"))
-                .map(a -> a.split("_")[1]).collect(Collectors.toList());
+                .map(a -> a.split("_")[1])
+                .collect(Collectors.toList());
     }
 
     public UserDto(UserEntity other) {
@@ -71,7 +72,8 @@ public class UserDto implements Serializable {
         this.principles = other.getPrinciples();
         this.system = other.isSystem();
         this.roles  = this.grantedAuthorities.stream().filter(a -> a.startsWith("ROLE_"))
-                .map(a -> a.split("_")[1]).collect(Collectors.toList());
+                .map(a -> a.split("_")[1])
+                .collect(Collectors.toList());
     }
 
     /**

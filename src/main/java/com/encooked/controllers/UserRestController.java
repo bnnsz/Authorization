@@ -50,8 +50,6 @@ public class UserRestController {
     UserService userService;
     @Autowired
     MessageComponent messageComponent;
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
 
     @ApiOperation(value = "Return list of users")
     @ApiResponses(value = {
@@ -98,20 +96,6 @@ public class UserRestController {
     public ResponseEntity put(@PathVariable String id, @RequestBody Map<String, String> principles) throws ServiceException {
         UserEntity user = userService.updateUserProfile(resolve(id), principles);
         return ResponseEntity.accepted().body(new UserDto(user));
-    }
-
-    @ApiOperation(value = "change password for the specified username or \"me\" as id for logged in user")
-    @ApiResponses(value = {
-        @ApiResponse(code = 202, response = Boolean.class, message = "ACCEPTED"),
-        @ApiResponse(code = 404, response = ErrorResponse.class, message = "NOT FOUND")
-    })
-    @PostMapping("/{id}/changePassword")
-    public ResponseEntity changePassword(
-            @PathVariable String id,
-            @RequestBody String oldPassword,
-            @RequestBody String newPassword) throws ServiceException {
-        boolean changed = userService.changePassword(resolve(id), oldPassword, newPassword);
-        return ResponseEntity.accepted().body(changed);
     }
 
     @ApiOperation(value = "create new user")

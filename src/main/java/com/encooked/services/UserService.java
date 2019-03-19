@@ -5,6 +5,7 @@
  */
 package com.encooked.services;
 
+import com.encooked.components.JwtTokenUtil;
 import com.encooked.components.MessageComponent;
 import com.encooked.dto.UserDto;
 import com.encooked.entities.RoleEntity;
@@ -25,10 +26,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -53,48 +59,103 @@ public class UserService {
     GrantedPrivilegeEntityRepository grantedPrivilegeEntityRepository;
 
     @Autowired
+    JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
     private MessageComponent messageComponent;
 
-    public UserDetails activateUser(String username) throws Exception, UsernameNotFoundException {
-        UserEntity user = userEntityRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
-        if (user.isEnabled()) {
-            throw new ServiceException(Error.account_active);
-        }
-        user.setEnabled(true);
-        user.setCredentialsNonExpired(true);
-        userEntityRepository.save(user);
-        return user;
-    }
-    
-    public UserDetails activateUserByToken(String value) throws Exception, UsernameNotFoundException {
-        TokenEntity token = tokenEntityRepository.findByValue(value)
-                .orElseThrow(() -> new ServiceException(Error.token_invalid));
-        if(token.isExpired()){
-            throw new ServiceException(Error.token_expired);
-        }
-        
-        if(token.getUser() == null){
+    public String activateUser(String tokenValue) throws Exception, UsernameNotFoundException {
+        Optional<TokenEntity> tokenOption = tokenEntityRepository.findByValue(tokenValue);
+        if (tokenOption.isPresent()) {
+            TokenEntity token = tokenOption.get();
+            if (token.isExpired()) {
+                throw new ServiceException(Error.token_expired);
+            }
+            UserEntity user = token.getUser();
+
+            if (user == null) {
+                throw new ServiceException(Error.token_invalid);
+            }
+
+            if (user.isEnabled()) {
+                throw new ServiceException(Error.account_active);
+            }
+
+            user.setEnabled(true);
+            user.setCredentialsNonExpired(true);
+            token.setExpired(true);
+
+            user = userEntityRepository.save(user);
+
+            token.setUser(user);
+            tokenEntityRepository.save(token);
+
+            token = new TokenEntity(jwtTokenUtil.doGenerateToken(user), user);
+            token = tokenEntityRepository.save(token);
+            return token.getValue();
+        } else {
             throw new ServiceException(Error.token_invalid);
         }
-        
-        UserEntity user = token.getUser();
-        
-        if (user.isEnabled()) {
-            throw new ServiceException(Error.account_active);
+    }
+
+   
+    public UserDetails verifyToken(String value) throws Exception, UsernameNotFoundException {
+        TokenEntity token = tokenEntityRepository.findByValue(value)
+                .orElseThrow(() -> new ServiceException(Error.token_invalid));
+        if (token.isExpired()) {
+            throw new ServiceException(Error.token_expired);
         }
-        user.setEnabled(true);
-        user.setCredentialsNonExpired(true);
-        token.setExpired(true);
-        
-        userEntityRepository.save(user);
-        tokenEntityRepository.save(token);
+
+        if (token.getUser() == null) {
+            throw new ServiceException(Error.token_invalid);
+        }
+
+        UserEntity user = token.getUser();
+
+        if (user == null) {
+            throw new AuthenticationCredentialsNotFoundException("Invalid username or password");
+        }
+
+        if (!jwtTokenUtil.validateToken(value, user)) {
+            throw new ServiceException(Error.token_invalid);
+        }
+
+        if (!user.isAccountNonExpired()) {
+            throw new AccountExpiredException("Account has expired");
+        }
+
+        if (!user.isAccountNonLocked()) {
+            throw new LockedException("Account has been locked");
+        }
+
+        if (!user.isEnabled()) {
+            throw new DisabledException("Account has been disabled");
+        }
+
         return user;
     }
 
     public UserDetails getUser(String username) throws ServiceException {
         return userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new ServiceException(Error.user_not_exist));
+    }
+
+    @Transactional
+    public String requestToken(String username) throws ServiceException {
+        UserEntity user = userEntityRepository.findByUsername(username)
+                .orElseThrow(() -> new ServiceException(Error.user_not_exist));
+
+        return tokenEntityRepository.findByUserAndExpired(user, false)
+                .peek(t -> t.setExpired(true))
+                .peek(t -> tokenEntityRepository.save(t))
+                .filter(t -> !t.isExpired())
+                .findFirst()
+                .orElseGet(() -> {
+                    TokenEntity token = new TokenEntity(jwtTokenUtil.doGenerateToken(user), user);
+                    token.setExpired(false);
+                    tokenEntityRepository.save(token);
+                    return token;
+                }).getValue();
     }
 
     public Map<String, String> getUserProfile(String username) throws ServiceException {
