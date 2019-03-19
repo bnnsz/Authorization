@@ -5,6 +5,7 @@
  */
 package com.encooked.components;
 
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,16 @@ public final class AutowireHelper implements ApplicationContextAware {
 
     private AutowireHelper() {
     }
+    
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        applicationContext = applicationContext;
+    }
+
+    public static <T> T autowire(Class<T> beanClass) {
+        return applicationContext.getBean(beanClass);
+    }
+
 
     /**
      * Tries to autowire the specified instance of the class if one of the specified beans which need to be autowired
@@ -36,11 +47,6 @@ public final class AutowireHelper implements ApplicationContextAware {
                 return;
             }
         }
-    }
-
-    @Override
-    public void setApplicationContext(final ApplicationContext applicationContext) {
-        AutowireHelper.applicationContext = applicationContext;
     }
 
     /**

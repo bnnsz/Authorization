@@ -48,7 +48,8 @@ public class EntityListener {
     }
 
     public void audit(AbstractEntity item, AuditLogAction action) {
-        AutowireHelper.autowire(this, this.repository);
+        repository = AutowireHelper.autowire(AuditLogEntityRepository.class);
+        
         AuditLogEntity log = new AuditLogEntity();
         log.setTimestamp(LocalDateTime.now());
         log.setEntityRef(String.valueOf(item.getId()));
