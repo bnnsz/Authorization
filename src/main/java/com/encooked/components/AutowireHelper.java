@@ -8,10 +8,12 @@ package com.encooked.components;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 /**
- * Helper class which is able to autowire a specified class. It holds a static reference to the {@link org
+ * Helper class which is able to autowire a specified class. It holds a static
+ * reference to the {@link org
  * .springframework.context.ApplicationContext}.
  */
 @Service
@@ -22,7 +24,12 @@ public final class AutowireHelper implements ApplicationContextAware {
 
     private AutowireHelper() {
     }
-    
+
+    @Bean
+    public AutowireHelper autowireHelper() {
+        return AutowireHelper.getInstance();
+    }
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         applicationContext = applicationContext;
@@ -32,13 +39,14 @@ public final class AutowireHelper implements ApplicationContextAware {
         return applicationContext.getBean(beanClass);
     }
 
-
     /**
-     * Tries to autowire the specified instance of the class if one of the specified beans which need to be autowired
-     * are null.
+     * Tries to autowire the specified instance of the class if one of the
+     * specified beans which need to be autowired are null.
      *
-     * @param classToAutowire the instance of the class which holds @Autowire annotations
-     * @param beansToAutowireInClass the beans which have the @Autowire annotation in the specified {#classToAutowire}
+     * @param classToAutowire the instance of the class which holds @Autowire
+     * annotations
+     * @param beansToAutowireInClass the beans which have the @Autowire
+     * annotation in the specified {#classToAutowire}
      */
     public static void autowire(Object classToAutowire, Object... beansToAutowireInClass) {
         for (Object bean : beansToAutowireInClass) {
