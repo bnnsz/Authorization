@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  * reference to the {@link org
  * .springframework.context.ApplicationContext}.
  */
-public final class AutowireHelper implements ApplicationContextAware {
+public final class AutowireHelper {
 
     private static final AutowireHelper INSTANCE = new AutowireHelper();
     private static ApplicationContext applicationContext;
@@ -24,12 +24,10 @@ public final class AutowireHelper implements ApplicationContextAware {
     private AutowireHelper() {
     }
 
-    @Bean
     public AutowireHelper autowireHelper() {
         return AutowireHelper.getInstance();
     }
 
-    @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         applicationContext = applicationContext;
     }
