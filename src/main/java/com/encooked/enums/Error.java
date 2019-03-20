@@ -113,5 +113,10 @@ public enum Error {
     public HttpStatus getStatus() {
         return status;
     }
+    
+    @Override
+	public String toString() {
+		return this.code + " " + name();
+	}
 
 }
