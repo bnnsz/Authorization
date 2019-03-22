@@ -15,17 +15,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.security.core.userdetails.UserDetails;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
  *
  * @author obinna.asuzu
  */
 @ApiModel(value = "User", description = "User infomation, credentials and principles")
+@JsonInclude(Include.NON_NULL)
 public class UserDto implements Serializable {
     private static final long serialVersionUID = 1009L;
     @ApiModelProperty(value = "username of User")
     private String username;
-    @ApiModelProperty(value = "password of User")
+    @ApiModelProperty(value = "password of User", readOnly=true)
     private String password;
     @ApiModelProperty(value = "User principles")
     private Map<String, String> principles = new HashMap<>();
