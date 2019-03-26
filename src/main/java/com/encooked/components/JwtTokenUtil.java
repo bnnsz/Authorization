@@ -46,11 +46,21 @@ public class JwtTokenUtil implements Serializable {
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuer("http://encooked.com")
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + accessTokenValidity * 1000))
+                .setIssuedAt(today())
+                .setExpiration(configiredDate())
                 .signWith(SignatureAlgorithm.HS256, jwtKey)
                 .compact();
     }
+    
+    private Date today(){
+         return new Date(System.currentTimeMillis());
+    }
+    
+    private Date configuredDate(){
+         return new Date(System.currentTimeMillis() + accessTokenValidity * 1000);
+    }
+    
+    
     // Other methods
     public String getUsername(String authToken) {
         return Jwts.parser()
