@@ -47,7 +47,7 @@ public class JwtTokenUtil implements Serializable {
                 .setClaims(claims)
                 .setIssuer("http://encooked.com")
                 .setIssuedAt(today())
-                .setExpiration(configiredDate())
+                .setExpiration(configuredDate())
                 .signWith(SignatureAlgorithm.HS256, jwtKey)
                 .compact();
     }
