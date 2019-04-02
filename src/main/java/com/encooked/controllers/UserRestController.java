@@ -68,7 +68,7 @@ public class UserRestController {
 
     Authentication authentication;
     String link;
-    
+
     @Autowired
     private EurekaClient discoveryClient;
 
@@ -78,59 +78,38 @@ public class UserRestController {
     })
     @GetMapping()
     public ResponseEntity list(HttpServletRequest request) {
-        authentication = SecurityContextHolder.getContext().getAuthentication();
-        link = discoveryClient.getNextServerFromEureka("AUTHORIZATION", false).getHomePageUrl();
-        
+        initContext(request);
+
         List<UserDto> users = userService
                 .getAllUsers().stream()
                 .map(u -> toDto(u))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(users);
     }
-    
-    
-    
+
     @ApiOperation(value = "Return list of users paginated")
     @ApiResponses(value = {
         @ApiResponse(code = 200, response = UserDto.class, responseContainer = "List", message = "")
     })
     @GetMapping("/pagination")
-    public ResponseEntity list(HttpServletRequest request, @RequestParam int page, @RequestParam  int size) {
-        authentication = SecurityContextHolder.getContext().getAuthentication();
-        link = discoveryClient.getNextServerFromEureka("AUTHORIZATION", false).getHomePageUrl();
-        
-        Page<UserEntity> users = userService.getAllUsers(page,size);
+    public ResponseEntity list(HttpServletRequest request, @RequestParam int page, @RequestParam int size) {
+        initContext(request);
+        Page<UserEntity> users = userService.getAllUsers(page, size);
         Resource<List<UserDto>> resource = new Resource<>(users.getContent().stream()
                 .map(u -> toDto(u))
                 .collect(Collectors.toList()));
-        
-        if(users.hasNext()){
+
+        if (users.hasNext()) {
             Pageable pageable = users.nextPageable();
-            resource.add(new Link(link+"api/v1/users/pagination?page="+pageable.getPageNumber()+"&size="+pageable.getPageSize(),"next"));
+            resource.add(new Link(link + "api/v1/users/pagination?page=" + pageable.getPageNumber() + "&size=" + pageable.getPageSize(), "next"));
         }
-        
-        if(users.hasPrevious()){
+
+        if (users.hasPrevious()) {
             Pageable pageable = users.previousPageable();
-            resource.add(new Link(link+"api/v1/users/pagination?page="+pageable.getPageNumber()+"&size="+pageable.getPageSize(),"next"));
+            resource.add(new Link(link + "api/v1/users/pagination?page=" + pageable.getPageNumber() + "&size=" + pageable.getPageSize(), "previous"));
         }
-        
+
         return ResponseEntity.ok(resource);
-    }
-
-    public boolean userHasAuthority(String authority) {
-        return authentication.getAuthorities()
-                .stream()
-                .anyMatch((grantedAuthority) -> authority.equals(grantedAuthority.getAuthority()));
-    }
-
-    private UserDto toDto(UserEntity u) {
-        UserDto user = new UserDto(u.getUsername());
-        if (userHasAuthority("ADMIN.USER_WRITE") && !u.isSystem()) {
-            user.add(new Link(link+"api/v1/users/"+u.getUsername()+"/","delete"));
-        }
-        user.add(new Link(link+"api/v1/users/"+u.getUsername(),"details"));
-        user.add(new Link(link+"api/v1/users/"+u.getUsername()+"/profile","profile"));
-        return user;
     }
 
     @ApiOperation(value = "get user details by username or \"me\" as id for logged in user")
@@ -224,10 +203,34 @@ public class UserRestController {
 
     private String resolve(String id) {
         if (id.equalsIgnoreCase("me")) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            authentication = authentication == null
+                    ? SecurityContextHolder.getContext().getAuthentication()
+                    : authentication;
             return authentication.getName();
         }
         return id;
+    }
+
+    private void initContext(HttpServletRequest request) {
+        authentication = SecurityContextHolder.getContext().getAuthentication();
+        link = discoveryClient.getNextServerFromEureka("GATEWAY", false).getHomePageUrl()
+                + request.getHeader("context-path") + "/";
+    }
+
+    private boolean userHasAuthority(String authority) {
+        return authentication.getAuthorities()
+                .stream()
+                .anyMatch((grantedAuthority) -> authority.equals(grantedAuthority.getAuthority()));
+    }
+
+    private UserDto toDto(UserEntity u) {
+        UserDto user = new UserDto(u.getUsername());
+        if (userHasAuthority("ADMIN.USER_WRITE") && !u.isSystem()) {
+            user.add(new Link(link + "api/v1/users/" + u.getUsername() + "/", "delete"));
+        }
+        user.add(new Link(link + "api/v1/users/" + u.getUsername(), "details"));
+        user.add(new Link(link + "api/v1/users/" + u.getUsername() + "/profile", "profile"));
+        return user;
     }
 
     @ExceptionHandler(NullPointerException.class)
