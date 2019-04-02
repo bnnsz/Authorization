@@ -254,7 +254,7 @@ public class UserService {
     }
     
     public Page<UserEntity> getAllUsers(int page, int size) {
-        return userEntityRepository.findAll(PageRequest.of(0, 10));
+        return userEntityRepository.findAll(PageRequest.of(page, size));
     }
 
     public List<UserEntity> getAllUsersByRole(String role) {
