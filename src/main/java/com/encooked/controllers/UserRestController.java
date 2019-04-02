@@ -32,6 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -72,6 +73,8 @@ public class UserRestController {
 
     @Autowired
     private EurekaClient discoveryClient;
+    
+    private org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass());
 
     @ApiOperation(value = "Return list of users")
     @ApiResponses(value = {
@@ -214,6 +217,8 @@ public class UserRestController {
 
     private void initContext(HttpServletRequest request) {
         authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        authentication.getAuthorities().forEach(a -> log.info(a.getAuthority()));
         String path = discoveryClient.getNextServerFromEureka("GATEWAY", false).getHomePageUrl();
         try {
             URL url = new URL(path);
@@ -237,11 +242,6 @@ public class UserRestController {
         user.add(new Link(link + "api/v1/users/" + u.getUsername(), "details"));
         user.add(new Link(link + "api/v1/users/" + u.getUsername() + "/profile", "profile"));
         return user;
-    }
-
-    @ExceptionHandler(NullPointerException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public void handleError() {
     }
 
 }
