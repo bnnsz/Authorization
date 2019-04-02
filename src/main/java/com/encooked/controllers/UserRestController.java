@@ -94,8 +94,8 @@ public class UserRestController {
     @ApiResponses(value = {
         @ApiResponse(code = 200, response = UserDto.class, responseContainer = "List", message = "")
     })
-    @GetMapping("/{page}")
-    public ResponseEntity list(HttpServletRequest request, @PathVariable int page, @RequestParam  int size) {
+    @GetMapping("/pagination")
+    public ResponseEntity list(HttpServletRequest request, @RequestParam int page, @RequestParam  int size) {
         authentication = SecurityContextHolder.getContext().getAuthentication();
         link = discoveryClient.getNextServerFromEureka("AUTHORIZATION", false).getHomePageUrl();
         
@@ -106,12 +106,12 @@ public class UserRestController {
         
         if(users.hasNext()){
             Pageable pageable = users.nextPageable();
-            resource.add(new Link(link+"api/v1/users?page="+pageable.getPageNumber()+"&size="+pageable.getPageSize(),"next"));
+            resource.add(new Link(link+"api/v1/users/pagination?page="+pageable.getPageNumber()+"&size="+pageable.getPageSize(),"next"));
         }
         
         if(users.hasPrevious()){
             Pageable pageable = users.previousPageable();
-            resource.add(new Link(link+"api/v1/users?page="+pageable.getPageNumber()+"&size="+pageable.getPageSize(),"next"));
+            resource.add(new Link(link+"api/v1/users/pagination?page="+pageable.getPageNumber()+"&size="+pageable.getPageSize(),"next"));
         }
         
         return ResponseEntity.ok(resource);
