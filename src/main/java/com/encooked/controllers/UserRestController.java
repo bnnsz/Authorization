@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -213,8 +214,13 @@ public class UserRestController {
 
     private void initContext(HttpServletRequest request) {
         authentication = SecurityContextHolder.getContext().getAuthentication();
-        link = discoveryClient.getNextServerFromEureka("GATEWAY", false).getHomePageUrl()
-                + request.getHeader("context-path") + "/";
+        String path = discoveryClient.getNextServerFromEureka("GATEWAY", false).getHomePageUrl();
+        try {
+            URL url = new URL(path);
+            path = url.getProtocol() + "://" + url.getHost() + "/";
+        } catch (MalformedURLException ex) {
+        }
+        link = path + request.getHeader("context-path") + "/";
     }
 
     private boolean userHasAuthority(String authority) {
