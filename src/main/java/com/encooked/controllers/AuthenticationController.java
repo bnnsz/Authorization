@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @version 1.0
  * @author obinna.asuzu
  */
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/oauth/v1")
 @Api(value = "Authentication Api", description = "REST API for Authentication", tags = {"Oauth"})
