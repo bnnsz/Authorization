@@ -93,10 +93,10 @@ public class UserRestController {
     private UserDto toDto(UserEntity u) {
         UserDto user = new UserDto(u.getUsername());
         if (userHasAuthority("ADMIN.USER_WRITE") && !u.isSystem()) {
-            user.add(new Link(link+"api/v1/users/"+u.getUsername()+"/","delete.deactivate"));
+            user.add(new Link(link+"api/v1/users/"+u.getUsername()+"/","delete"));
         }
-        user.add(new Link(link+"api/v1/users/"+u.getUsername(),"get.details"));
-        user.add(new Link(link+"api/v1/users/"+u.getUsername()+"/profile","get.profile"));
+        user.add(new Link(link+"api/v1/users/"+u.getUsername(),"details"));
+        user.add(new Link(link+"api/v1/users/"+u.getUsername()+"/profile","profile"));
         return user;
     }
 
