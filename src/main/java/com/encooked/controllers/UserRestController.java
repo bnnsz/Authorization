@@ -10,6 +10,7 @@ import com.encooked.components.MessageComponent;
 import com.encooked.dto.UserDto;
 import com.encooked.entities.UserEntity;
 import com.encooked.dto.ErrorResponse;
+import com.encooked.dto.Resource;
 import com.encooked.exceptions.ServiceException;
 import com.encooked.services.UserService;
 import com.netflix.appinfo.InstanceInfo;
@@ -31,6 +32,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,6 +48,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
@@ -82,6 +86,35 @@ public class UserRestController {
                 .map(u -> toDto(u))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(users);
+    }
+    
+    
+    
+    @ApiOperation(value = "Return list of users paginated")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, response = UserDto.class, responseContainer = "List", message = "")
+    })
+    @GetMapping()
+    public ResponseEntity list(HttpServletRequest request, @RequestParam int page, @RequestParam  int size) {
+        authentication = SecurityContextHolder.getContext().getAuthentication();
+        link = discoveryClient.getNextServerFromEureka("AUTHORIZATION", false).getHomePageUrl();
+        
+        Page<UserEntity> users = userService.getAllUsers(page,size);
+        Resource<List<UserDto>> resource = new Resource<>(users.getContent().stream()
+                .map(u -> toDto(u))
+                .collect(Collectors.toList()));
+        
+        if(users.hasNext()){
+            Pageable pageable = users.nextPageable();
+            resource.add(new Link(link+"api/v1/users?page="+pageable.getPageNumber()+"&size="+pageable.getPageSize(),"next"));
+        }
+        
+        if(users.hasPrevious()){
+            Pageable pageable = users.previousPageable();
+            resource.add(new Link(link+"api/v1/users?page="+pageable.getPageNumber()+"&size="+pageable.getPageSize(),"next"));
+        }
+        
+        return ResponseEntity.ok(resource);
     }
 
     public boolean userHasAuthority(String authority) {

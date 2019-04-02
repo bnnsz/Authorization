@@ -26,6 +26,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -248,6 +251,10 @@ public class UserService {
 
     public List<UserEntity> getAllUsers() {
         return userEntityRepository.findAll();
+    }
+    
+    public Page<UserEntity> getAllUsers(int page, int size) {
+        return userEntityRepository.findAll(PageRequest.of(0, 10));
     }
 
     public List<UserEntity> getAllUsersByRole(String role) {
