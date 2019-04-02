@@ -94,8 +94,8 @@ public class UserRestController {
     @ApiResponses(value = {
         @ApiResponse(code = 200, response = UserDto.class, responseContainer = "List", message = "")
     })
-    @GetMapping()
-    public ResponseEntity list(HttpServletRequest request, @RequestParam int page, @RequestParam  int size) {
+    @GetMapping("/{page}")
+    public ResponseEntity list(HttpServletRequest request, @PathVariable int page, @RequestParam  int size) {
         authentication = SecurityContextHolder.getContext().getAuthentication();
         link = discoveryClient.getNextServerFromEureka("AUTHORIZATION", false).getHomePageUrl();
         
