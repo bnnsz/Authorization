@@ -12,17 +12,26 @@ import com.encooked.entities.UserEntity;
 import com.encooked.dto.ErrorResponse;
 import com.encooked.exceptions.ServiceException;
 import com.encooked.services.UserService;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +41,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -51,17 +62,42 @@ public class UserRestController {
     @Autowired
     MessageComponent messageComponent;
 
+    Authentication authentication;
+    String link;
+    
+    @Autowired
+    private EurekaClient discoveryClient;
+
     @ApiOperation(value = "Return list of users")
     @ApiResponses(value = {
         @ApiResponse(code = 200, response = UserDto.class, responseContainer = "List", message = "")
     })
     @GetMapping()
-    public ResponseEntity list() {
+    public ResponseEntity list(HttpServletRequest request) {
+        authentication = SecurityContextHolder.getContext().getAuthentication();
+        link = discoveryClient.getNextServerFromEureka("AUTHORIZATION", false).getHomePageUrl();
+        
         List<UserDto> users = userService
                 .getAllUsers().stream()
-                .map(u -> new UserDto(u))
+                .map(u -> toDto(u))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(users);
+    }
+
+    public boolean userHasAuthority(String authority) {
+        return authentication.getAuthorities()
+                .stream()
+                .anyMatch((grantedAuthority) -> authority.equals(grantedAuthority.getAuthority()));
+    }
+
+    private UserDto toDto(UserEntity u) {
+        UserDto user = new UserDto(u.getUsername());
+        if (userHasAuthority("ADMIN.USER_WRITE") && !u.isSystem()) {
+            user.add(new Link(link+"api/v1/users/"+u.getUsername()+"/","delete.deactivate"));
+        }
+        user.add(new Link(link+"api/v1/users/"+u.getUsername(),"get.details"));
+        user.add(new Link(link+"api/v1/users/"+u.getUsername()+"/profile","get.profile"));
+        return user;
     }
 
     @ApiOperation(value = "get user details by username or \"me\" as id for logged in user")

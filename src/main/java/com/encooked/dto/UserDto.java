@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.springframework.hateoas.ResourceSupport;
 
 /**
  *
@@ -24,31 +25,32 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  */
 @ApiModel(value = "User", description = "User infomation, credentials and principles")
 @JsonInclude(Include.NON_NULL)
-public class UserDto implements Serializable {
+public class UserDto extends ResourceSupport implements Serializable {
+
     private static final long serialVersionUID = 1009L;
     @ApiModelProperty(value = "username of User")
     private String username;
-    @ApiModelProperty(value = "password of User", readOnly=true)
+    @ApiModelProperty(value = "password of User", readOnly = true)
     private String password;
     @ApiModelProperty(value = "User principles")
     private Map<String, String> principles = new HashMap<>();
     @ApiModelProperty(value = "user's granted authorities")
     private List<String> grantedAuthorities = new ArrayList<>();
     @ApiModelProperty(value = "true if user account is enabled otherwise false")
-    private boolean enabled;
+    private Boolean enabled;
     @ApiModelProperty(value = "true if user account is not locked otherwise false")
-    private boolean accountNonLocked;
+    private Boolean accountNonLocked;
     @ApiModelProperty(value = "true if user's credential is not expired otherwise false")
-    private boolean credentialsNonExpired;
+    private Boolean credentialsNonExpired;
     @ApiModelProperty(value = "true if user account is not expired otherwise false")
-    private boolean accountNonExpired;
-    @ApiModelProperty(value = "Indicates that user account is a system accoun. System account cannot be deactivated",readOnly = true)
-    private boolean system;
+    private Boolean accountNonExpired;
+    @ApiModelProperty(value = "Indicates that user account is a system accoun. System account cannot be deactivated", readOnly = true)
+    private Boolean system;
     @ApiModelProperty(value = "User roles")
     private List<String> roles = new ArrayList<>();
-    
-    public UserDto(){
-        
+
+    public UserDto() {
+
     }
 
     public UserDto(UserDetails other) {
@@ -59,7 +61,7 @@ public class UserDto implements Serializable {
         this.accountNonLocked = other.isAccountNonLocked();
         this.credentialsNonExpired = other.isCredentialsNonExpired();
         this.enabled = other.isEnabled();
-        this.roles  = this.grantedAuthorities.stream().filter(a -> a.startsWith("ROLE_"))
+        this.roles = this.grantedAuthorities.stream().filter(a -> a.startsWith("ROLE_"))
                 .map(a -> a.split("_")[1])
                 .collect(Collectors.toList());
     }
@@ -74,9 +76,16 @@ public class UserDto implements Serializable {
         this.enabled = other.isEnabled();
         this.principles = other.getPrinciples();
         this.system = other.isSystem();
-        this.roles  = this.grantedAuthorities.stream().filter(a -> a.startsWith("ROLE_"))
+        this.roles = this.grantedAuthorities.stream().filter(a -> a.startsWith("ROLE_"))
                 .map(a -> a.split("_")[1])
                 .collect(Collectors.toList());
+    }
+
+    public UserDto(String username) {
+        this.username = username;
+        this.principles = null;
+        this.roles = null;
+        this.grantedAuthorities = null;
     }
 
     /**
@@ -97,19 +106,19 @@ public class UserDto implements Serializable {
         return password;
     }
 
-    public boolean isAccountNonExpired() {
+    public Boolean isAccountNonExpired() {
         return accountNonExpired;
     }
 
-    public boolean isAccountNonLocked() {
+    public Boolean isAccountNonLocked() {
         return accountNonLocked;
     }
 
-    public boolean isCredentialsNonExpired() {
+    public Boolean isCredentialsNonExpired() {
         return credentialsNonExpired;
     }
 
-    public boolean isEnabled() {
+    public Boolean isEnabled() {
         return enabled;
     }
 
@@ -151,42 +160,42 @@ public class UserDto implements Serializable {
     /**
      * @param enabled the enabled to set
      */
-    public void setEnabled(boolean enabled) {
+    public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
 
     /**
      * @param accountNonLocked the accountNonLocked to set
      */
-    public void setAccountNonLocked(boolean accountNonLocked) {
+    public void setAccountNonLocked(Boolean accountNonLocked) {
         this.accountNonLocked = accountNonLocked;
     }
 
     /**
      * @param credentialsNonExpired the credentialsNonExpired to set
      */
-    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+    public void setCredentialsNonExpired(Boolean credentialsNonExpired) {
         this.credentialsNonExpired = credentialsNonExpired;
     }
 
     /**
      * @param accountNonExpired the accountNonExpired to set
      */
-    public void setAccountNonExpired(boolean accountNonExpired) {
+    public void setAccountNonExpired(Boolean accountNonExpired) {
         this.accountNonExpired = accountNonExpired;
     }
 
     /**
      * @return the system
      */
-    public boolean isSystem() {
+    public Boolean isSystem() {
         return system;
     }
 
     /**
      * @param system the system to set
      */
-    public void setSystem(boolean system) {
+    public void setSystem(Boolean system) {
         this.system = system;
     }
 
@@ -204,7 +213,7 @@ public class UserDto implements Serializable {
         this.roles = roles;
     }
 
-    public boolean validate(UserDto userDetails) {
+    public Boolean validate(UserDto userDetails) {
         String otherUser = username + ":" + grantedAuthorities + ":"
                 + accountNonExpired + ":" + accountNonLocked + ":"
                 + credentialsNonExpired + ":" + enabled;
