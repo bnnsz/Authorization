@@ -217,7 +217,7 @@ public class UserRestController {
 
     private void initContext(HttpServletRequest request) {
         authentication = SecurityContextHolder.getContext().getAuthentication();
-        
+        System.out.println("-----------------------------------..>");
         authentication.getAuthorities().forEach(a -> log.info(a.getAuthority()));
         String path = discoveryClient.getNextServerFromEureka("GATEWAY", false).getHomePageUrl();
         try {
