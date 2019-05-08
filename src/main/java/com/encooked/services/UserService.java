@@ -11,6 +11,7 @@ import com.encooked.dto.UserDto;
 import com.encooked.entities.RoleEntity;
 import com.encooked.entities.TokenEntity;
 import com.encooked.entities.UserEntity;
+import com.encooked.entities.UserPrincipalEntity;
 import com.encooked.enums.Error;
 import com.encooked.exceptions.ServiceException;
 import com.encooked.repositories.GrantedPrivilegeEntityRepository;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toMap;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -164,7 +166,7 @@ public class UserService {
     public Map<String, String> getUserProfile(String username) throws ServiceException {
         UserEntity user = userEntityRepository.findByUsername(username)
                 .orElseThrow(() -> new ServiceException(Error.user_not_exist));
-        return user.getPrinciples();
+        return user.getPrincipals().stream().collect(toMap(UserPrincipalEntity::getKey, UserPrincipalEntity::getValue));
     }
 
     public UserEntity registerUser(
@@ -204,14 +206,11 @@ public class UserService {
         user.setCredentialsNonExpired(true);
         user.setEnabled(false);
 
-        Map<String, String> principles = new HashMap<>();
-        principles.put("username", username);
-        principles.put("firstname", firstname);
-        principles.put("lastname", lastname);
-        principles.put("email", email);
-        principles.put("phone", phone);
-
-        user.setPrinciples(principles);
+        user.setPrincipal("username", username);
+        user.setPrincipal("firstname", firstname);
+        user.setPrincipal("lastname", lastname);
+        user.setPrincipal("email", email);
+        user.setPrincipal("phone", phone);
 
         if (userEntityRepository.findByUsername(username).isPresent()) {
             throw new ServiceException(Error.user_exist);
@@ -279,7 +278,7 @@ public class UserService {
                 .orElseThrow(() -> new ServiceException(Error.user_not_exist));
 
         principles.keySet().forEach(key -> {
-            user.getPrinciples().put(key.toLowerCase(), principles.get(key));
+            user.setPrincipal(key.toLowerCase(), principles.get(key));
         });
 
         return userEntityRepository.save(user);

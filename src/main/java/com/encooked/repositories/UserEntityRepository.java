@@ -6,8 +6,13 @@
 package com.encooked.repositories;
 
 import com.encooked.entities.UserEntity;
+import java.time.LocalDateTime;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  *
@@ -15,4 +20,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
     public Optional<UserEntity> findByUsername(String username);
+    
+    @Query("SELECT DISTINCT a FROM UserEntity a JOIN a.principals p "
+            + "WHERE (a.username LIKE %:criteria% "
+            + "OR p.value LIKE %:criteria%) "
+            + "AND (a.createdTimestamp BETWEEN :fromDate AND :toDate)")
+    public Page<UserEntity> searchByCriteria(
+            @Param("criteria") String criteria,
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("toDate") LocalDateTime toDate,
+            Pageable pageable);
 }

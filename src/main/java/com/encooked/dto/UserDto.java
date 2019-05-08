@@ -6,6 +6,7 @@
 package com.encooked.dto;
 
 import com.encooked.entities.UserEntity;
+import com.encooked.entities.UserPrincipalEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import static java.util.stream.Collectors.toMap;
 import org.springframework.hateoas.ResourceSupport;
 
 /**
@@ -74,7 +76,7 @@ public class UserDto extends ResourceSupport implements Serializable {
         this.accountNonLocked = other.isAccountNonLocked();
         this.credentialsNonExpired = other.isCredentialsNonExpired();
         this.enabled = other.isEnabled();
-        this.principles = other.getPrinciples();
+        this.principles = other.getPrincipals().stream().collect(toMap(UserPrincipalEntity::getKey, UserPrincipalEntity::getValue));
         this.system = other.isSystem();
         this.roles = this.grantedAuthorities.stream().filter(a -> a.startsWith("ROLE_"))
                 .map(a -> a.split("_")[1])

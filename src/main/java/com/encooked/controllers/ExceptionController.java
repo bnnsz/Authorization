@@ -28,27 +28,27 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExceptionController {
 
     @ExceptionHandler({DisabledException.class, LockedException.class, CredentialsExpiredException.class, AccountExpiredException.class})
-    public ResponseEntity<?> handleDisabledException(Throwable ex) {
+    public ResponseEntity<ErrorResponse> handleDisabledException(Throwable ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(ex));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<?> handleBadCredentialsException(Throwable ex) {
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(Throwable ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex));
     }
 
     @ExceptionHandler({UsernameNotFoundException.class, AuthenticationCredentialsNotFoundException.class})
-    public ResponseEntity<?> handleUsernameNotFoundException(Throwable ex) {
+    public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(Throwable ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(ex));
     }
     
     @ExceptionHandler({RecordExistsException.class})
-    public ResponseEntity<?> handleRecordExistException(Throwable ex) {
+    public ResponseEntity<ErrorResponse> handleRecordExistException(Throwable ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(ex));
     }
     
     @ExceptionHandler({ServiceException.class})
-    public ResponseEntity<?> handleServiceException(ServiceException ex) {
+    public ResponseEntity<ErrorResponse> handleServiceException(ServiceException ex) {
         return ResponseEntity.status(ex.getError().getStatus()).body(new ErrorResponse(ex));
     }
 }

@@ -102,7 +102,7 @@ public class InitializationBean implements
             UserEntity user = new UserEntity();
             user.setUsername("admin");
             user.setPassword("admin");
-            user.getPrinciples().put("firstname", "Admin");
+            user.setPrincipal("firstname", "Admin");
             user.setCredentialsNonExpired(false);
             user.setEnabled(true);
             user.setAccountNonLocked(true);

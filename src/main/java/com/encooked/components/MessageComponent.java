@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,7 +27,8 @@ public class MessageComponent {
     @Autowired
     private EurekaClient discoveryClient;
 
-    public boolean sendAcivationEmail(UserDto user, String activationToken) {
+    @Async
+    public void sendAcivationEmail(UserDto user, String activationToken) {
 
         InstanceInfo instance = discoveryClient.getNextServerFromEureka("MESSAGING", false);
         String messagingUrl = instance.getHomePageUrl();
@@ -38,6 +40,6 @@ public class MessageComponent {
         String email = user.getPrinciples().get("email");
         HttpEntity<Address> request = new HttpEntity<>(new Address(firstname, email));
         String url = messagingUrl + "api/v1/email/send/activate/" + activationToken;
-        return restTemplate.postForObject(url, request, Boolean.class);
+        restTemplate.postForObject(url, request, Boolean.class);
     }
 }

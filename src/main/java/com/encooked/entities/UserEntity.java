@@ -24,6 +24,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -64,10 +65,10 @@ public class UserEntity extends AbstractEntity implements Serializable, UserDeta
     @Column
     private boolean system;
 
-    @ElementCollection
-    private Map<String, String> principles = new HashMap<>();
-
     private transient final List<GrantedAuthority> authorities = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<UserPrincipalEntity> principals = new HashSet<>();
 
     public UserEntity() {
     }
@@ -249,17 +250,32 @@ public class UserEntity extends AbstractEntity implements Serializable, UserDeta
     }
 
     /**
-     * @return the principles
+     * @return the principals
      */
-    public Map<String, String> getPrinciples() {
-        return principles;
+    public Set<UserPrincipalEntity> getPrincipals() {
+        return principals;
     }
 
     /**
-     * @param principles the principles to set
+     * @param principals the principals to set
      */
-    public void setPrinciples(Map<String, String> principles) {
-        this.principles = principles;
+    public void setPrincipals(Set<UserPrincipalEntity> principals) {
+        this.principals = principals;
+    }
+
+    /**
+     * @param key
+     * @param value
+     */
+    public void setPrincipal(String key, String value) {
+        boolean[] found = {false};
+        this.principals.stream().filter(p -> p.getKey() != null && p.getKey().equals(key)).findFirst().ifPresent(p -> {
+            p.setValue(value);
+            found[0] = true;
+        });
+        if (!found[0]) {
+            principals.add(new UserPrincipalEntity(this, null, key, value));
+        }
     }
 
 }
